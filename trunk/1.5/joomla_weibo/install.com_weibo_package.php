@@ -1,6 +1,6 @@
 <?php
 /**
- * @version         $Id: install.com_weibo.php 223 2011-03-22 15:33:04Z yulei $
+ * @version         $Id$
  */
 
 defined('_JEXEC') or die();
