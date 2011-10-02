@@ -1,6 +1,6 @@
 <?php
 /**
- * @version         $Id: uninstall.com_weibo.php 225 2011-03-23 05:12:11Z leiy $
+ * @version         $Id$
  */
 
 
