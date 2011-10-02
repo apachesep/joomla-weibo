@@ -1,6 +1,6 @@
 <?php
 /**
- * $Id: admin.weibo.php 274 2011-04-27 10:21:48Z leiy $
+ * $Id$
  */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
