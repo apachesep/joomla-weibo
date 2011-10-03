@@ -7,7 +7,7 @@
 defined('_JEXEC') or die();
 
 /**
- * com_weibo 的安装程序，现在只是为了创建用于在读认证数据的数据库，
+ * com_weibo 的安装程序
  */
 global $mainframe;
 define("COM_NAME", 'com_weibo');
