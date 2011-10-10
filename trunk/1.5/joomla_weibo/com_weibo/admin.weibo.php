@@ -7,6 +7,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 $path = str_replace(DS."components".DS."com_weibo","",dirname(__FILE__));
 require_once($path .DS."components".DS."com_weibo".DS."weibo.tencent.php");
 require_once($path .DS."components".DS."com_weibo".DS."weibo.sina.php");
+require_once($path .DS."components".DS."com_weibo".DS."weibo.163.php");
 require_once($path .DS."components".DS."com_weibo".DS."admin.weibo.html.php");
 
 // 本程序是com_weibo的主程序，用于处理腾讯微博的授权认证
@@ -26,6 +27,12 @@ switch ($task){
 	case 'sinacallback': // 当腾讯授权正常完成时，将转到task=callback回调
 		sinaCallback();
 		break;
+        case 'neteaseauth': // 当task=neteaseauth时，将页面转向网易的授权页面
+        HTML_weibo::showNeteaseAuth();
+        break;
+    case 'neteasecallback': // 当网易授权正常完成时，将转到task=callback回调
+        neteaseCallback();
+        break;
 		default:
 		break;
 }
@@ -92,4 +99,33 @@ function sinaCallback() {
 	}
 }
 
+/**
+ * 当网易授权正常完成时，将转到task=neteasecallback回调，这时调用这个函数
+ */
+function neteaseCallback() {
+
+    $oauth = new ONAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['request_token']['oauth_token'], $_SESSION['request_token']['oauth_token_secret']);
+
+    if ($last_key = $oauth->getAccessToken($_REQUEST['oauth_token'])) {
+        // 如果成功取得last_key
+        $db = & JFactory::getDBO();
+
+        // 先将数据库中原有数据无论有无均删除
+        $sql = "DELETE FROM #__weibo_auth WHERE type='netease'";
+        $db->setQuery($sql);
+        $db->Query();
+
+
+        // 将取得的last_key写入数据库中
+        $sql = "INSERT INTO #__weibo_auth(id,oauth_token,oauth_token_secret,name,type ) VALUES ('3','$last_key[oauth_token]','$last_key[oauth_token_secret]','', 'netease') ";
+        $db->setQuery($sql);
+        $db->Query();
+
+        // 显示已经成功获得授权的页面
+        HTML_weibo::finishedNeteaseAuth($last_key);
+    } else {
+        // 如果未成功取得last_key，显示出错的页面
+        HTML_weibo::errorNeteaseAuth();
+    }
+}
 ?>
