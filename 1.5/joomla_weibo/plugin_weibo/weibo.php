@@ -13,6 +13,7 @@ $mainframe->registerEvent( 'onAfterContentSave', 'plgWeibo' );
 define('WEIBO_LIMIT', 140); // 限制字数
 require_once('weibo.sina.php');
 require_once('weibo.tencent.php');
+require_once('weibo.163.php');
 
 /**
  * 清理文字
@@ -178,6 +179,26 @@ function sendTencentWeibo( $weibocontent, $P)
 }
 
 /**
+ * 发送网易微博
+ */
+function sendNeteaseWeibo($weibocontent, $P) {
+
+    // 如果没有网易的授权，直接返回
+    if (!$P['neteaselastkey']) {
+        return;
+    }
+    $c = new TBlog(CONSUMER_KEY, CONSUMER_SECRET, $P['neteaselastkey']['oauth_token'], $P['neteaselastkey']['oauth_token_secret']);
+    // 如果有图片，上传图片，发表有图片的微博
+    if ($weibocontent['imgurl']) {
+        $rtn1 = $c->upload($weibocontent['text'], $weibocontent['imgurl']);
+    } else {
+        // 发表没有图片的微博
+        $rtn = $c->update($weibocontent['text']);
+    }
+}
+
+
+/**
  * 发表文章自动发表微博插件
  */
 function plgWeibo( &$row, $isNew )
@@ -216,6 +237,15 @@ function plgWeibo( &$row, $isNew )
 		$result = $db->loadAssoc();
 		$P['tencentlastkey'] = $result;
     }
+    $P['neteaseenabled'] = $pluginParams->get('neteaseenabled', false); //是否启用网易微博
+        if ($P['neteaseenabled']) {
+            // 如果启动网易微博，则取得数据库中存储的网易微博授权码
+            $db = & JFactory::getDBO();
+            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE id = '3' AND type='netease'";
+            $db->setQuery($sql);
+            $result = $db->loadAssoc();
+            $P['neteaselastkey'] = $result;
+        }
     $P['weibotype'] =  $pluginParams->get('weibotype'); // 微博发表方式（fulltext，onlytitle，introtext或者custom）
     $P['catid'] =  $pluginParams->get('catid'); // 所指定的分类
     $P['customstring'] = $pluginParams->get('customstring'); // 自定义的字符串
@@ -240,6 +270,10 @@ function plgWeibo( &$row, $isNew )
 	if ( $P['tencentenabled'] && $P['tencentlastkey'] ){
     	sendTencentWeibo( $weibocontent, $P);
     }
+        // 发送网易微博
+        if ($P['neteaseenabled'] && $P['neteaselastkey']) {
+            sendNeteaseWeibo($weibocontent, $P);
+        }
 
     return true;
 }

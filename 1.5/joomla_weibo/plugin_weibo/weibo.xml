@@ -7,12 +7,13 @@
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<authorEmail>yulei_vsc@yahoo.com.cn</authorEmail>
 	<authorUrl>http://blog.sina.com.cn/yuleishanghai</authorUrl>
-	<version>0.6.1</version>
+	<version>0.7.0</version>
 	<description>DESCCONTENTWEIBO</description>
 	<files>
 		<filename plugin="weibo">weibo.php</filename>
 		<filename plugin="weibo">weibo.sina.php</filename>
 		<filename plugin="weibo">weibo.tencent.php</filename>
+		<filename plugin="weibo">weibo.163.php</filename>
 	</files>
 	<languages>
 		<language tag="zh-CN">zh-CN.plg_content_weibo.ini</language>
@@ -29,6 +30,11 @@
             <option value="1">Yes</option>
         </param>
         <param name="spacer2" type="spacer" default="腾讯微博不能直接输入用户名和密码，第一次使用请点击下面的连接，进入腾讯认证&lt;br /&gt;（已经认证的再次认证，可以用来更改微博帐户）&lt;br /&gt;&lt;a href=&quot;index.php?option=com_weibo&amp;task=tencentauth&quot;  target=&quot;tencentauth&quot; &gt; 点击这里进行腾讯认证&lt;/a&gt;&lt;hr /&gt;" />
+        <param name="neteaseenabled" type="radio" default="1" label="Enable Netease Weibo" description="PARAMENABLEDNETEASE">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </param>
+        <param name="spacer3" type="spacer" default="网易微博不能直接输入用户名和密码，第一次使用请点击下面的连接，进入网易认证&lt;br /&gt;（已经认证的再次认证，可以用来更改微博帐户）&lt;br /&gt;&lt;a href=&quot;index.php?option=com_weibo&amp;task=neteaseauth&quot;  target=&quot;neteaseauth&quot; &gt; 点击这里进行网易认证&lt;/a&gt;&lt;hr /&gt;" />
         <param name="catid" type="category" 
             label="Category" description="PARAMCATEGORY" />
         <param name="picsend" type="radio" default="1" label="Enable Image" description="PARAMSENDPIC">
