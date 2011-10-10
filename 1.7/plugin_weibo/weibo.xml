@@ -12,6 +12,7 @@
         <filename plugin="weibo">weibo.php</filename>
         <filename plugin="weibo">weibo.sina.php</filename>
         <filename plugin="weibo">weibo.tencent.php</filename>
+        <filename plugin="weibo">weibo.163.php</filename>
         <filename plugin="weibo">index.html</filename>
     </files>
     <languages>
@@ -38,6 +39,15 @@
                     <option value="1">Yes</option>
                 </field>
                 <field type="spacer" name="spacer2" label="TENCENT_AUTH" />
+                <field name="neteaseenabled" type="radio"
+					default="1"
+					description="PARAMENABLEDNETEASE"
+					label="Enable Netease Weibo"
+				>
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </field>
+                <field type="spacer" name="spacer3" label="NETEASE_AUTH" />
                 <field name="catid" type="category" extension="com_content" label="Category" description="PARAMCATEGORY" />
                 <field name="weibotype" type="list"
 					default="custom"
