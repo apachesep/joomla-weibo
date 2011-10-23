@@ -1,6 +1,6 @@
 #!/bin/bash -x
 
-version=0.7.0
+version=0.7.2
 
 rm -rf t_com_weibo
 rm -rf t_plugin_weibo
