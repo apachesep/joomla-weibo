@@ -7,11 +7,13 @@
 // No direct access.
 defined('_JEXEC') or die;
 
-jimport('joomla.plugin.plugin');
-jimport('joomla.application.categories');
 
+jimport('joomla.plugin.plugin');
+jimport('joomla.application.component.view');
 
 define('WEIBO_LIMIT', 140); // 限制字数
+//require_once JPATH_SITE.'/components/com_content/router.php';
+require_once JPATH_SITE.'/components/com_content/helpers/route.php';
 require_once('weibo.sina.php');
 require_once('weibo.tencent.php');
 require_once('weibo.163.php');
@@ -54,12 +56,20 @@ function getWeiboText($row, $P, &$weibocontent) {
         // 取得网站的root URI
         $u = & JFactory::getURI();
         $root = $u->root();
-        //$link = JRoute::_(getArticleRoute($row->id, $row->catid, $row->sectionid), false);
+        //$link = JRoute::_(getArticleRoute($row->id, $row->catid, $row->sectionid), false); 旧版本用这个方法
+        $link = ContentHelperRoute::getArticleRoute($row->id, $row->catid);
+
+        // 取得发表者的名字
+        $user	= JFactory::getUser();
+        $username = $user->name;
+        
         $weibotext = str_replace('%T', $row->title, $P['customstring']);    // %T 替换成文章的标题
         $weibotext = str_replace('%F', $row->introtext . '<br>' . $row->fulltext, $weibotext); // %F 替换成文章的全文
         $weibotext = str_replace('%I', $row->introtext, $weibotext);  // %I 替换为引言
         $weibotext = str_replace('%H', $root, $weibotext);   // %H 替换为网站网址
-        //$weibotext = str_replace('%L', $root . $link, $weibotext); // %L （ALPAH）替换成此文章的URL，此功能尚有BUG
+        $weibotext = str_replace('%U', $username, $weibotext); // %U 替换成发表此文章的用户名
+        $weibotext = str_replace('%L', $root . $link, $weibotext); // %L （ALPAH）替换成此文章的URL，此功能尚有BUG
+        
     }
 
     // 因为微博限制字数为140字，删去多出部分
