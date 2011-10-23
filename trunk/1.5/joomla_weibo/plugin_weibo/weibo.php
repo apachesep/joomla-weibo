@@ -11,6 +11,7 @@ $mainframe->registerEvent( 'onAfterContentSave', 'plgWeibo' );
 //$mainframe->registerEvent( 'onAfterContentSave', 'plgWeiboAfter' );
 
 define('WEIBO_LIMIT', 140); // 限制字数
+require_once JPATH_SITE.'/components/com_content/helpers/route.php';
 require_once('weibo.sina.php');
 require_once('weibo.tencent.php');
 require_once('weibo.163.php');
@@ -30,31 +31,6 @@ function cleanText ( &$text )
     $text = strip_tags( $text );
     $text = htmlspecialchars( $text );
     return $text;
-}
-
-/**
- * 取得文章发表后的URL，如果当用户自定义微博文字时，如果包含有%L，则替换成文章的网址，此网址由此函数生成
- */
-function getArticleRoute($id, $catid = 0, $sectionid = 0)
-{
-    $needles = array(
-            'article'  => (int) $id,
-            'category' => (int) $catid,
-            'section'  => (int) $sectionid,
-    );
-
-    //Create the link
-    $link = 'index.php?option=com_content&view=article&id='. $id;
-
-    if($catid) {
-        $link .= '&catid='.$catid;
-    }
-
-    //if($item = ContentHelperRoute::_findItem($needles)) {
-    //   $link .= '&Itemid='.$item->id;
-    //};
-
-    return $link;
 }
 
 /**
@@ -81,11 +57,18 @@ function getWeiboText( $row, $P, &$weibocontent)
         // 取得网站的root URI
         $u =& JFactory::getURI();
         $root = $u->root();
-        $link = JRoute::_(getArticleRoute($row->id, $row->catid, $row->sectionid), false);
+        //$link = JRoute::_(getArticleRoute($row->id, $row->catid, $row->sectionid), false);
+	$link = ContentHelperRoute::getArticleRoute($row->id, $row->catid, $row->sectionid );
+
+        // 取得发表者的名字
+        $user	= JFactory::getUser();
+        $username = $user->name;
+
         $weibotext = str_replace('%T', $row->title, $P['customstring']);    // %T 替换成文章的标题
         $weibotext = str_replace('%F', $row->introtext . '<br>'. $row->fulltext, $weibotext); // %F 替换成文章的全文
         $weibotext = str_replace('%I', $row->introtext, $weibotext);  // %I 替换为引言
         $weibotext = str_replace('%H', $root, $weibotext);   // %H 替换为网站网址
+        $weibotext = str_replace('%U', $username, $weibotext); // %U 替换成发表此文章的用户名
         $weibotext = str_replace('%L', $root.$link, $weibotext); // %L （ALPAH）替换成此文章的URL，此功能尚有BUG
     }
     
