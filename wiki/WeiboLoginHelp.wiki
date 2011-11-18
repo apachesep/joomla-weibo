@@ -87,7 +87,11 @@ http://joomla-weibo.googlecode.com/svn/wiki/9.png
 
 http://joomla-weibo.googlecode.com/svn/wiki/10.png
 
-登录后，界面上会显示出已经登录的界面，并且，用户的昵称就是用户的“微博昵称”加上（来自某某微博）
+下面的例子是使用新浪微博登录，这时首先会跳转到新浪微博的网页上进行认证，
+
+http://joomla-weibo.googlecode.com/svn/wiki/15.png
+
+认证后，界面上会显示出已经登录的界面，并且，用户的昵称就是用户的“微博昵称”加上（来自某某微博）
 
 http://joomla-weibo.googlecode.com/svn/wiki/11.png
 
@@ -102,5 +106,3 @@ http://joomla-weibo.googlecode.com/svn/wiki/13.png
 当您要把这个用户设置成黑名单时，请进入“管理-插件”，选择“认证-微博”，以这个用户ID填入黑名单中，多个名单请你半角逗号分隔
 
 http://joomla-weibo.googlecode.com/svn/wiki/14.png
-
-
