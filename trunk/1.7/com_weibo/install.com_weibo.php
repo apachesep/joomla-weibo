@@ -52,8 +52,15 @@ class com_weiboInstallerScript {
             }
         }
 
-        $path = JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_weibo'. DS . 'plugin_weibo';
-
+        $path = JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_weibo'. DS . 'mod_weibologin';
+        if (!JFolder::delete($path)) {
+		$msg[] = JText::_('DELETETMPERROR');
+        }
+        $path = JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_weibo'. DS . 'plg_authentication_weibo';
+        if (!JFolder::delete($path)) {
+		$msg[] = JText::_('DELETETMPERROR');
+        }
+        $path = JPATH_ADMINISTRATOR . DS . 'components' . DS . 'com_weibo'. DS . 'plg_content_weibo';
         if (!JFolder::delete($path)) {
 		$msg[] = JText::_('DELETETMPERROR');
         }
@@ -100,10 +107,31 @@ class com_weiboInstallerScript {
                 $installer = new JInstaller();
 		$rtn = $installer->uninstall ( 'plugin', $result );
                 if ( $rtn ) {
-                   echo '<p>'. JText::_('Uninstall Plugin OK') . '</p>' ;
+                   echo '<p>'. JText::_('Uninstall plg_content_weibo OK') . '</p>' ;
+		}
+	}
+        $sql = 'SELECT extension_id FROM `#__extensions` WHERE `name` = "mod_weibologin" and `type` = "module";';
+        $db->setQuery($sql);
+        $result = $db->loadResult();
+	if ( $result ) {
+                $installer = new JInstaller();
+		$rtn = $installer->uninstall ( 'module', $result );
+                if ( $rtn ) {
+                   echo '<p>'. JText::_('Uninstall mod_weibologin OK') . '</p>' ;
+		}
+	}
+        $sql = 'SELECT extension_id FROM `#__extensions` WHERE `name` = "plg_authentication_weibo" and `type` = "plugin";';
+        $db->setQuery($sql);
+        $result = $db->loadResult();
+	if ( $result ) {
+                $installer = new JInstaller();
+		$rtn = $installer->uninstall ( 'plugin', $result );
+                if ( $rtn ) {
+                   echo '<p>'. JText::_('Uninstall plg_authentication_weibo OK') . '</p>' ;
 		}
 	}
 
+        
     }
 
     /**
