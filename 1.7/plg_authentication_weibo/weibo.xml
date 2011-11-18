@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="1.7" type="plugin" group="authentication">
+    <name>plg_authentication_weibo</name>
+    <author>Yulei</author>
+    <creationDate>2011/10</creationDate>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <authorEmail>yulei_vsc@yahoo.com.cn</authorEmail>
+    <authorUrl>http://blog.sina.com.cn/yuleishanghai</authorUrl>
+    <version>%VERSION%</version>
+    <description>PLG_AUTH_WEIBO_DESCRIPTION</description>
+    <files>
+        <filename plugin="weibo">weibo.php</filename>
+        <filename>index.html</filename>
+    </files>
+    <languages>
+        <language tag="zh-CN">zh-CN.plg_authentication_weibo.ini</language>
+        <language tag="zh-CN">zh-CN.plg_authentication_weibo.sys.ini</language>
+    </languages>
+    <config>
+        <fields name="params">
+
+            <fieldset name="basic">
+                <field name="user_blacklist" type="text"
+					description="PLG_WEIBO_FIELD_USER_BLACKLIST_DESC"
+					label="PLG_WEIBO_FIELD_USER_BLACKLIST_LABEL"
+					size="30"
+				/>
+            </fieldset>
+
+        </fields>
+    </config>
+</extension>

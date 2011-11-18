@@ -26,8 +26,8 @@
 					description="PARAMENABLEDSINA"
 					label="Enable Sina Weibo"
 				>
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
                 </field>
                 <field type="spacer" name="spacer1" label="SINA_AUTH" />
                 <field name="tencentenabled" type="radio"
@@ -35,8 +35,8 @@
 					description="PARAMENABLEDTENCENT"
 					label="Enable Tencent Weibo"
 				>
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
                 </field>
                 <field type="spacer" name="spacer2" label="TENCENT_AUTH" />
                 <field name="neteaseenabled" type="radio"
@@ -44,8 +44,8 @@
 					description="PARAMENABLEDNETEASE"
 					label="Enable Netease Weibo"
 				>
-                    <option value="0">No</option>
-                    <option value="1">Yes</option>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
                 </field>
                 <field type="spacer" name="spacer3" label="NETEASE_AUTH" />
                 <field name="catid" type="category" extension="com_content" label="Category" description="PARAMCATEGORY" />
