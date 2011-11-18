@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version		$Id$
+ * @version		$Id: weibo.php 14 2011-10-23 09:30:14Z yuleivsc@gmail.com $
  * @license		GNU General Public License version 2 or later; see LICENSE.txt
  */
 // No direct access.
