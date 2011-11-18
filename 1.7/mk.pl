@@ -54,7 +54,7 @@ move('plg_content_weibo.zip', 'com_weibo/plg_content_weibo.zip');
 # 生成最终的打包文件
 $zip = Archive::Zip->new();
 $zip->addTree( 'com_weibo', 'com_weibo' );
-unless ( $zip->writeToFileNamed('plg_content_weibo.zip') == AZ_OK ) {
+unless ( $zip->writeToFileNamed('com_weibo.zip') == AZ_OK ) {
     die 'write error';
 }
 
