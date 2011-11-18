@@ -1,6 +1,6 @@
 <?php
 /**
- * @version		$Id: helper.php 21421 2011-06-03 07:21:02Z infograf768 $
+ * @version		$Id$
  */
 
 // no direct access

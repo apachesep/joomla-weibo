@@ -1,6 +1,6 @@
 <?php
 /**
- * @version		$Id: mod_login.php 20806 2011-02-21 19:44:59Z dextercowley $
+ * @version		$Id$
  */
 
 // no direct access
