@@ -1,6 +1,6 @@
 <?php
 /**
- * @version		$Id: default.php 21322 2011-05-11 01:10:29Z dextercowley $
+ * @version		$Id$
  */
 // no direct access
 defined('_JEXEC') or die;
