@@ -35,21 +35,21 @@ $zip->addTree( 'mod_weibologin', 'mod_weibologin' );
 unless ( $zip->writeToFileNamed('mod_weibologin.zip') == AZ_OK ) {
     die 'write error';
 }
-move('mod_weibologin.zip', 'com_weibo/mod_weibologin.zip');
+move('mod_weibologin.zip', 'com_weibo/admin/mod_weibologin.zip');
 
 $zip = Archive::Zip->new();
 $zip->addTree( 'plg_authentication_weibo', 'plg_authentication_weibo' );
 unless ( $zip->writeToFileNamed('plg_authentication_weibo.zip') == AZ_OK ) {
     die 'write error';
 }
-move('plg_authentication_weibo.zip', 'com_weibo/plg_authentication_weibo.zip');
+move('plg_authentication_weibo.zip', 'com_weibo/admin/plg_authentication_weibo.zip');
 
 $zip = Archive::Zip->new();
 $zip->addTree( 'plg_content_weibo', 'plg_content_weibo' );
 unless ( $zip->writeToFileNamed('plg_content_weibo.zip') == AZ_OK ) {
     die 'write error';
 }
-move('plg_content_weibo.zip', 'com_weibo/plg_content_weibo.zip');
+move('plg_content_weibo.zip', 'com_weibo/admin/plg_content_weibo.zip');
 
 # 生成最终的打包文件
 $zip = Archive::Zip->new();

@@ -14,6 +14,9 @@
         <filename>index.html</filename>
         <filename>weibo.php</filename>
         <filename>controller.php</filename>
+        <filename>weibo.tencent.php</filename>
+        <filename>weibo.163.php</filename>
+        <filename>weibo.sina.php</filename>
         <folder>views</folder>
         <folder>images</folder>
     </files>
