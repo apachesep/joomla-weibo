@@ -9,28 +9,55 @@
 = 适用版本 =
 
 仅适用于Joomla 1.7
+
 或许适用于 Joomla 1.6 （我没有测试过）
+
 但是不适用于 Joomla 1.5及以前的版本
 
 微博插件，适用于 0.7.9及以上版本
 
-= 安装本插件 =
-实际上本插件包含以下多个插件、组件、模块等：
+= 安装和删除本插件 =
+实际上本插件包含以下多个扩展等：
 
-com_weibo 微博组件
-mod_weibologin  微博登录用模块
-plg_content_weibo 发表内容同时发表微博所用到的插件
-plg_authentication_weibo 用于微博登录用
+ * com_weibo 微博组件
+ * mod_weibologin  微博登录用模块
+ * plg_content_weibo 发表内容同时发表微博所用到的插件
+ * plg_authentication_weibo 用于微博登录用
 
 以上四个程序，在安装本插件时，会自动安装进去。
-删除时，请com_weibo，则也会自动删除全部
-但是如果手动删除其它三个中一个，则程序的工作会不正常
+删除时，请删除com_weibo，则也会自动删除全部
+如果手动删除其它三个中一个，则程序的工作会不正常
 
+由于上述原因，安装插件时显示以下信息属于正常
+
+http://joomla-weibo.googlecode.com/svn/wiki/2.png
+
+删除本插件时，也会显示以下界面属于正常
+
+http://joomla-weibo.googlecode.com/svn/wiki/3.png
 
 
 = 配置用户界面 =
- 
+
+要使用微博登录，首先，要启用“认证-微博”插件
+
+进入菜单“扩展-插件管理”，选择“认证-微博”，然后启用本插件
+
+http://joomla-weibo.googlecode.com/svn/wiki/4.png
+
+这时，系统已经具备了微博登录功能，但是用户界面上却没有相应的连接。您可以参照以下的方法，为您自己的页面设置微博登录的用户界面:
+
 安装完Joomla，并且使用安装时自带的示范数据后，Joomla的首页如下。
+
 注意其中左下部分，有一个供用户登录的表单
 
 http://joomla-weibo.googlecode.com/svn/wiki/1.png
+
+这个表单是由joomla本身所提供的认证模块，现在让我们把我们的微博认证模块也加到其中。
+
+首先在管理菜单中选择“管理-模块管理”
+
+新建一个模块：
+
+
+http://joomla-weibo.googlecode.com/svn/wiki/5.png
