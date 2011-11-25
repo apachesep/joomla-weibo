@@ -40,6 +40,9 @@ function cleanText(&$text) {
 function getWeiboText($row, $P, &$weibocontent) {
     unset($weibocontent['text']);
     unset($weibocontent['imgfile']);
+    // 取得网站的root URI
+    $u = & JFactory::getURI();
+    $root = $u->root();
 
     // 根据微博文字的种类
     if ($P['weibotype'] == 'fulltext') {
@@ -53,9 +56,6 @@ function getWeiboText($row, $P, &$weibocontent) {
         $weibotext = $row->title;
     } else {
         //  4) 自定义发表文字
-        // 取得网站的root URI
-        $u = & JFactory::getURI();
-        $root = $u->root();
         //$link = JRoute::_(getArticleRoute($row->id, $row->catid, $row->sectionid), false); 旧版本用这个方法
         $link = ContentHelperRoute::getArticleRoute($row->id, $row->catid);
 
