@@ -6,7 +6,7 @@
 
 = 启用并设置微博插件 =
 
-进入“扩展”-“插件管理”，选择“Content - Weibo”，然后进行相应的设置：
+进入“扩展”-“插件管理”，选择“内容 - 微博”，然后进行相应的设置：
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/plg_content.png
 
