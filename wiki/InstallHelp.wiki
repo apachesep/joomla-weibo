@@ -1,3 +1,4 @@
+本文说明在Joomla 1.5之下如何安装卸载本程序
 
 <wiki:toc max_depth="1" />
 
