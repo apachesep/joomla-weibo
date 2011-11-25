@@ -29,11 +29,11 @@
 
 由于上述原因，安装插件时显示以下信息属于正常
 
-http://joomla-weibo.googlecode.com/svn/wiki/2.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/2.png
 
 删除本插件时，也会显示以下界面属于正常
 
-http://joomla-weibo.googlecode.com/svn/wiki/3.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/3.png
 
 
 = 配置用户界面 =
@@ -42,7 +42,7 @@ http://joomla-weibo.googlecode.com/svn/wiki/3.png
 
 进入菜单“扩展-插件管理”，选择“认证-微博”，然后启用本插件
 
-http://joomla-weibo.googlecode.com/svn/wiki/4.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/4.png
 
 这时，系统已经具备了微博登录功能，但是用户界面上却没有相应的连接。您可以参照以下的方法，为您自己的页面设置微博登录的用户界面:
 
@@ -50,7 +50,7 @@ http://joomla-weibo.googlecode.com/svn/wiki/4.png
 
 注意其中左下部分，有一个供用户登录的表单
 
-http://joomla-weibo.googlecode.com/svn/wiki/1.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/1.png
 
 这个表单是由joomla本身所提供的认证模块，现在让我们把我们的微博认证模块也加到其中。
 
@@ -58,15 +58,15 @@ http://joomla-weibo.googlecode.com/svn/wiki/1.png
 
 新建一个模块：
 
-http://joomla-weibo.googlecode.com/svn/wiki/5.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/5.png
 
 选择“微博登陆”
 
-http://joomla-weibo.googlecode.com/svn/wiki/6.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/6.png
 
 请设置模块名称，比如“WeiboLogin”，位置，请选择“position-7”，这是系统自带的示范页面中左侧栏的位置标识。您自己的网站可能不是这个。
 
-http://joomla-weibo.googlecode.com/svn/wiki/7.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/7.png
 
 其他相关选项的解释：
 
@@ -77,32 +77,32 @@ http://joomla-weibo.googlecode.com/svn/wiki/7.png
 
 以上设置完毕，请先选择“保存”
 
-http://joomla-weibo.googlecode.com/svn/wiki/8.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/8.png
 
 这时，就可以安排同样是位于“position-7”所标识的左侧栏中的其他模块的位置了。在这个例子里，我们把我们的登录模块安排在系统的登录表单之下。
 
-http://joomla-weibo.googlecode.com/svn/wiki/9.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/9.png
 
 设置完成后，保存退出，这时到用户界面的首页，您可以看到，左下方的登录表单中出现了“使用微博登录”的部分，同时显示出三个按钮。用户按其中的一个，便可以使用微博登录了。
 
-http://joomla-weibo.googlecode.com/svn/wiki/10.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/10.png
 
 下面的例子是使用新浪微博登录，这时首先会跳转到新浪微博的网页上进行认证，
 
-http://joomla-weibo.googlecode.com/svn/wiki/15.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/15.png
 
 认证后，界面上会显示出已经登录的界面，并且，用户的昵称就是用户的“微博昵称”加上（来自某某微博）
 
-http://joomla-weibo.googlecode.com/svn/wiki/11.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/11.png
 
 进入管理界面中的用户管理，您可以看到登录的微博用户
 
-http://joomla-weibo.googlecode.com/svn/wiki/12.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/12.png
 
 您可以象操作普通的Joomla用户一样，为这个用户设置权限等。请注意，在joomla系统中使用的“用户ID”
 
-http://joomla-weibo.googlecode.com/svn/wiki/13.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/13.png
 
 当您要把这个用户设置成黑名单时，请进入“管理-插件”，选择“认证-微博”，以这个用户ID填入黑名单中，多个名单请你半角逗号分隔
 
-http://joomla-weibo.googlecode.com/svn/wiki/14.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/17/14.png
