@@ -36,5 +36,24 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/15/plg_content.png
 
 4）是否发表图片，如果选择了“是”，则文章中如果有图片的话，也会发表到微博上，注意，如果文章中有多个图片，只会发送第一个。
 
-第四步：启用新浪或者腾讯微博
+5）启用新浪，腾讯或者网易微博
 
+在设置界面中，请点击“新浪认证”，于是弹出一个新的窗口，此窗口的页面会自动转向到新浪的认证页面：
+
+http://joomla-weibo.googlecode.com/svn/wiki/images/15.png
+
+输入帐户和密码后，点击授权。这时，页面会回到joomla的控制台，并显示认证已经通过
+
+http://joomla-weibo.googlecode.com/svn/wiki/images/15/16.png
+
+下面这个例子中创建了一篇文章
+
+http://joomla-weibo.googlecode.com/svn/wiki/images/15/17.png
+
+相应的，在新浪微博上也生成了一条微博：
+
+http://joomla-weibo.googlecode.com/svn/wiki/images/15/18.png
+
+同时，腾讯微博上也有一条微博了
+
+http://joomla-weibo.googlecode.com/svn/wiki/images/15/19.png
