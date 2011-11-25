@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+# 安装说明
 
 = 说明 =
 实际上本插件包含以下多个扩展：
