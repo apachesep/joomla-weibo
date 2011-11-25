@@ -46,4 +46,4 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/15/install2.png
 
 如果显示以下信息，表示所有的组件/模块/插件均卸载成功
 
-http://joomla-weibo.googlecode.com/svn/wiki/images/2.png
+http://joomla-weibo.googlecode.com/svn/wiki/images/3.png
