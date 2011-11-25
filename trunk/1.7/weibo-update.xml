@@ -54,5 +54,23 @@
       <maintainerurl>http://blog.sina.com.cn/yuleishanghai</maintainerurl>
       <targetplatform name="joomla" version="1.7" />
    </update>
+   <update>
+      <name>Weibo</name>
+      <description>weibo</description>
+      <element>com_weibo</element>
+      <type>component</type>
+      <version>0.7.9</version>
+      <infourl title="Weibo URL">http://blog.sina.com.cn/yuleishanghai</infourl>
+      <downloads>
+         <downloadurl type="full" format="tgz">http://joomla-weibo.googlecode.com/files/weibo_v0.7.9_joomla1.7_zh-CN.zip</downloadurl>
+      </downloads>
+      <tags>
+         <client_id>1</client_id>
+      </tags>
+ 
+      <maintainer>Yulei</maintainer>
+      <maintainerurl>http://blog.sina.com.cn/yuleishanghai</maintainerurl>
+      <targetplatform name="joomla" version="1.7" />
+   </update>
 
 </updates>
