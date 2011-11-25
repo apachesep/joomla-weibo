@@ -3,6 +3,6 @@
 本插件的使用说明：
 
 * Joomla 1.5下的使用说明
-  ** [InstallHelp15   安装说明]
-  ** 同步发表微博的使用说明
-  ** 使用新浪、腾讯、网易的帐号进行登录。 
+  ** [InstallHelp15 安装说明]
+  ** [PostWeibo15 同步发表微博的使用说明]
+  ** [WeiboLoginHelp15 使用新浪、腾讯、网易的帐号登录Joomla]
