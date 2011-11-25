@@ -46,6 +46,10 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/15.png
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/15/16.png
 
+= 发表文章并同步到微博上 =
+
+注意：本插件仅在发表新的文章的时候同时发表到微博上，修改或者删除文章对已经发表的微博没有任何影响
+
 下面这个例子中创建了一篇文章
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/15/17.png
