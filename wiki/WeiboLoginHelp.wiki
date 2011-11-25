@@ -1,3 +1,7 @@
+#summary 本文介绍如何让joomla1.7系统能够使用新浪、腾讯、网易的帐号进行登录。
+
+<wiki:toc max_depth="2" />
+
 = 简介 =
 
 本文介绍如何使用Joomla的微博插件，让joomla系统能够使用
@@ -5,40 +9,11 @@
 
 本文以标准的Joomla页面及缺省的安装示范数据作为例子，每个由Joomla构筑的网站多少会有所不同，但是如果您仔细阅读了本文。相信一定能够在您的网站中配置好通过本插件，使用微博登录Joomla的。
 
-= 适用版本 =
-
-仅适用于Joomla 1.7
-
-或许适用于 Joomla 1.6 （我没有测试过）
-
-但是不适用于 Joomla 1.5及以前的版本
-
-微博插件，适用于 0.7.9及以上版本
-
-= 安装和删除本插件 =
-实际上本插件包含以下多个扩展：
-
- * com_weibo 微博组件
- * mod_weibologin  微博登录用模块
- * plg_content_weibo 发表内容同时发表微博所用到的插件
- * plg_authentication_weibo 用于微博登录用
-
-以上四个程序，在安装本插件时，会自动安装进去。
-删除时，请删除com_weibo，则也会自动删除全部
-如果手动删除其它三个中一个，则程序的工作会不正常
-
-由于上述原因，安装插件时显示以下信息属于正常
-
-http://joomla-weibo.googlecode.com/svn/wiki/images/2.png
-
-删除本插件时，也会显示以下界面属于正常
-
-http://joomla-weibo.googlecode.com/svn/wiki/images/3.png
-
-
 = 配置用户界面 =
 
 要使用微博登录，首先，要启用“认证-微博”插件
+
+== 启用插件 ==
 
 进入菜单“扩展-插件管理”，选择“认证-微博”，然后启用本插件
 
@@ -53,6 +28,8 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/17/4.png
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/1.png
 
 这个表单是由joomla本身所提供的认证模块，现在让我们把我们的微博认证模块也加到其中。
+
+== 增加微博认证用的模块 ==
 
 首先在管理菜单中选择“管理-模块管理”
 
@@ -81,6 +58,8 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/17/8.png
 
 这时，就可以安排同样是位于“position-7”所标识的左侧栏中的其他模块的位置了。在这个例子里，我们把我们的登录模块安排在系统的登录表单之下。
 
+= 使用微博登录 =
+
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/9.png
 
 设置完成后，保存退出，这时到用户界面的首页，您可以看到，左下方的登录表单中出现了“使用微博登录”的部分，同时显示出三个按钮。用户按其中的一个，便可以使用微博登录了。
@@ -95,6 +74,8 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/15.png
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/11.png
 
+= 后台用户管理 =
+
 进入管理界面中的用户管理，您可以看到登录的微博用户
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/12.png
@@ -106,3 +87,15 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/17/13.png
 当您要把这个用户设置成黑名单时，请进入“管理-插件”，选择“认证-微博”，以这个用户ID填入黑名单中，多个名单请你半角逗号分隔
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/14.png
+
+= 常见问题 =
+
+== 后台管理中所见到的用户邮箱 ==
+
+对于新浪微博登录，本程序作者至今没有找到有什么办法取得用户邮箱，所以用户邮箱设置成了用户ID，不可用来发送邮件。
+
+对于网易和腾讯微博，本程序能够取得并且正确地设置用户邮箱
+
+== 登录后，为什么显示的是用户ID而不是用户昵称 ==
+
+Joomla1.7 的界面通常会显示用户ID而不是显示用户昵称，如果需要显示用户昵称，请进入系统的Login Form模块，设置中有一个“姓名/会员名”选项，设置成“姓名”即可
