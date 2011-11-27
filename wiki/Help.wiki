@@ -13,4 +13,6 @@
   ** [PostWeibo15 同步发表微博的使用说明]
   ** [WeiboLoginHelp15 使用新浪、腾讯、网易的帐号登录Joomla]
 
+* [FAQ 常见问题]
+
 
