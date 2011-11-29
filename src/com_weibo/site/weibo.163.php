@@ -5,6 +5,43 @@
 define( "CONSUMER_KEY" , 'pCQOiAtXF2mSkeLZ' );
 define( "CONSUMER_SECRET" , '9IuwDY3ffSmtLzaLcy099K2XBFRomuIf' );
 
+/**
+ * 此函数，返回一个供认证转移的URL
+ */
+function AuthUrlGet_netease( $path ) {
+        $oauth = new ONAuth(CONSUMER_KEY, CONSUMER_SECRET);
+        $keys = $oauth->getRequestToken();
+        $aurl = $oauth->getAuthorizeURL($keys['oauth_token'], $path);
+        $_SESSION['request_token'] = $keys;
+        return $aurl;
+}
+
+/**
+ * 此函数，供Callback处调用，如果返回false，认证失败，否则返回以下哈希表：
+ *   lastkey  ->  callback得到的lastkey
+ *   oauth_token ->  上述lastkey中的oauth_token
+ *   oauth_token_secret -> 上述lastkey中的oauth_token_secret
+ *   user_id -> 暂不提供
+ *   user_name ->  暂不提供
+ *   user_email -> 暂不提供
+ */
+function AuthCallback_netease() {
+    // 取得网易Auth对象
+    $o = new ONAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['request_token']['oauth_token'], $_SESSION['request_token']['oauth_token_secret']);
+    // 取得lastkey
+    $last_key = $o->getAccessToken($_REQUEST['oauth_token']);
+    if ( $last_key) {
+        $rtn = array();
+        $rtn['last_key'] = $last_key;
+        $rtn['oauth_token'] = $last_key['oauth_token'];
+        $rtn['oauth_token_secret'] = $last_key['oauth_token_secret'];
+        return $rtn;
+    } else  {
+        return $last_key;
+    }
+}
+
+
 /*
  * 以下内容，源自网易的oauth_lib.class.php
  * 所有的源文件中的OAuth均改成ONAuth
