@@ -15,6 +15,7 @@
     <files folder="site">
         <filename>index.html</filename>
         <filename>weibo.php</filename>
+        <filename>weibolib.php</filename>
         <filename>controller.php</filename>
         <filename>weibo.tencent.php</filename>
         <filename>weibo.163.php</filename>
@@ -26,6 +27,7 @@
         <files folder="admin">
             <filename>admin.weibo.html.php</filename>
             <filename>admin.weibo.php</filename>
+            <filename>weibolib.php</filename>
             <filename>weibo.tencent.php</filename>
             <filename>weibo.163.php</filename>
             <filename>weibo.sina.php</filename>

@@ -5,6 +5,43 @@
 define( "WB_AKEY" , '593737441' );
 define( "WB_SKEY" , 'a455e6d37f383654b1502ef808ac2b4d' );
 
+/**
+ * 此函数，返回一个供认证转移的URL
+ */
+function AuthUrlGet_sina( $path ) {
+        $o = new WeiboOAuth(WB_AKEY, WB_SKEY);
+        $keys = $o->getRequestToken();
+        $aurl = $o->getAuthorizeURL($keys['oauth_token'], false
+                , $path);
+        $_SESSION['keys'] = $keys;
+        return $aurl;
+}
+
+/**
+ * 此函数，供Callback处调用，如果返回false，认证失败，否则返回以下哈希表：
+ *   last_key  ->  callback得到的last_key
+ *   oauth_token ->  上述lastkey中的oauth_token
+ *   oauth_token_secret -> 上述lastkey中的oauth_token_secret
+ *   user_id -> userid
+ *   user_name ->  暂不提供
+ *   user_email -> 暂不提供
+ */
+function AuthCallback_sina() {
+    // 取得新浪Auth对象
+    $o = new WeiboOAuth(WB_AKEY, WB_SKEY, $_SESSION['keys']['oauth_token'], $_SESSION['keys']['oauth_token_secret']);
+// 获取last_key
+    $last_key = $o->getAccessToken($_REQUEST['oauth_verifier']);
+    if ( $last_key) {
+        $rtn = array();
+        $rtn['last_key'] = $last_key;
+        $rtn['oauth_token'] = $last_key['oauth_token'];
+        $rtn['oauth_token_secret'] = $last_key['oauth_token_secret'];
+        $rtn['user_id'] = $last_key['user_id'];
+        return $rtn;
+    } else  {
+        return $las_tkey;
+    }
+}
 
 /*
  * 以下内容，源自新浪的weibooauth.php

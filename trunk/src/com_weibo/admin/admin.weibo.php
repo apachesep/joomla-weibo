@@ -6,9 +6,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 $path = str_replace(DS . "components" . DS . "com_weibo", "", dirname(__FILE__));
-require_once($path . DS . "components" . DS . "com_weibo" . DS . "weibo.tencent.php");
-require_once($path . DS . "components" . DS . "com_weibo" . DS . "weibo.sina.php");
-require_once($path . DS . "components" . DS . "com_weibo" . DS . "weibo.163.php");
+require_once($path . DS . "components" . DS . "com_weibo" . DS . "weibolib.php");
 require_once($path . DS . "components" . DS . "com_weibo" . DS . "admin.weibo.html.php");
 
 // 本程序是com_weibo的主程序，用于处理腾讯微博的授权认证
@@ -42,11 +40,8 @@ switch ($task) {
  * 当腾讯授权正常完成时，将转到task=tencentcallback回调，这时调用这个函数
  */
 function tencentCallback() {
-    // 取得腾讯Auth对象
-    $o = new MBOpenTOAuth(MB_AKEY, MB_SKEY, $_SESSION['keys']['oauth_token'], $_SESSION['keys']['oauth_token_secret']);
-
-    // 获取last_key
-    $last_key = $o->getAccessToken($_REQUEST['oauth_verifier']);
+    
+    $last_key = AuthCallback('tencent') ;
     if ($last_key) {
         // 如果成功取得last_key
         $db = & JFactory::getDBO();
@@ -57,7 +52,7 @@ function tencentCallback() {
         $db->Query();
 
         // 将取得的last_key写入数据库中
-        $sql = "INSERT INTO #__weibo_auth(id,oauth_token,oauth_token_secret,name,type ) VALUES ('1','$last_key[oauth_token]','$last_key[oauth_token_secret]','$last_key[name]','tencent') ";
+        $sql = "INSERT INTO #__weibo_auth(id,oauth_token,oauth_token_secret,name,type ) VALUES ('1','$last_key[oauth_token]','$last_key[oauth_token_secret]','$last_key[user_id]','tencent') ";
         $db->setQuery($sql);
         $db->Query();
 
@@ -73,11 +68,7 @@ function tencentCallback() {
  * 当新浪授权正常完成时，将转到task=sinacallback回调，这时调用这个函数
  */
 function sinaCallback() {
-    // 取得新浪Auth对象
-    $o = new WeiboOAuth(WB_AKEY, WB_SKEY, $_SESSION['keys']['oauth_token'], $_SESSION['keys']['oauth_token_secret']);
-
-    // 获取last_key
-    $last_key = $o->getAccessToken($_REQUEST['oauth_verifier']);
+    $last_key = AuthCallback('sina') ;
     if ($last_key) {
         // 如果成功取得last_key
         $db = & JFactory::getDBO();
@@ -105,9 +96,8 @@ function sinaCallback() {
  */
 function neteaseCallback() {
 
-    $oauth = new ONAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['request_token']['oauth_token'], $_SESSION['request_token']['oauth_token_secret']);
-
-    if ($last_key = $oauth->getAccessToken($_REQUEST['oauth_token'])) {
+    $last_key = AuthCallback('netease') ;
+    if  ( $last_key ) {
         // 如果成功取得last_key
         $db = & JFactory::getDBO();
 
@@ -129,4 +119,5 @@ function neteaseCallback() {
         HTML_weibo::errorNeteaseAuth();
     }
 }
+
 ?>
