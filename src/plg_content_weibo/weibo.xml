@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install type="plugin" group="content" version="1.5" method="upgrade">
+    <name>Content - Weibo</name>
+    <author>Yulei</author>
+    <creationDate>2011/10</creationDate>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <authorEmail>yulei_vsc@yahoo.com.cn</authorEmail>
+    <authorUrl>http://blog.sina.com.cn/yuleishanghai</authorUrl>
+    <version>%VERSION%</version>
+    <description>PLG_WEIBO_DESCRIPTION</description>
+    <files>
+        <filename plugin="weibo">weibo.php</filename>
+        <filename plugin="weibo">weibo.sina.php</filename>
+        <filename plugin="weibo">weibo.tencent.php</filename>
+        <filename plugin="weibo">weibo.163.php</filename>
+    </files>
+    <languages>
+        <language tag="zh-CN">zh-CN.plg_content_weibo.sys.ini</language>
+        <language tag="zh-CN">zh-CN.plg_content_weibo.ini</language>
+    </languages>
+<params>
+        <param name="sinaenabled" type="radio" default="1" label="Enable Sina Weibo" description="PARAMENABLEDSINA">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </param>
+        <param name="spacer1" type="spacer" default="SINA_AUTH" />
+        <param name="tencentenabled" type="radio" default="1" label="Enable Tencent Weibo" description="PARAMENABLEDTENCENT">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </param>
+        <param name="spacer2" type="spacer" default="TENCENT_AUTH" />
+        <param name="neteaseenabled" type="radio" default="1" label="Enable Netease Weibo" description="PARAMENABLEDNETEASE">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </param>
+        <param name="spacer3" type="spacer" default="NETEASE_AUTH" />
+        <param name="catid" type="category" 
+            label="Category" description="PARAMCATEGORY" />
+        <param name="picsend" type="radio" default="1" label="Enable Image" description="PARAMSENDPIC">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </param>
+        <param name="weibotype" type="list" label="WeiboType" default="custom" description="PARAMWEIBOTYPE">
+            <option value="fulltext">Full Text</option>
+            <option value="introtext">Intro Text</option>
+            <option value="onlytitle">Only Title</option>
+            <option value="custom">Custom</option>
+        </param>
+        <param name="customstring" type="text" size="30" default="发表了题为《%T》的博文" label="customstring" description="PARAMCUSTOMSTRING">
+        </param>  
+    </params>
+    <config>
+        <fields name="params">
+            <fieldset name="basic">
+                <field name="sinaenabled" type="radio"
+					default="1"
+					description="PARAMENABLEDSINA"
+					label="Enable Sina Weibo"
+				>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
+                <field type="spacer" name="spacer1" label="SINA_AUTH" />
+                <field name="tencentenabled" type="radio"
+					default="1"
+					description="PARAMENABLEDTENCENT"
+					label="Enable Tencent Weibo"
+				>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
+                <field type="spacer" name="spacer2" label="TENCENT_AUTH" />
+                <field name="neteaseenabled" type="radio"
+					default="1"
+					description="PARAMENABLEDNETEASE"
+					label="Enable Netease Weibo"
+				>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
+                <field type="spacer" name="spacer3" label="NETEASE_AUTH" />
+                <field name="catid" type="category" extension="com_content" label="Category" description="PARAMCATEGORY" />
+                <field name="weibotype" type="list"
+					default="custom"
+					description="PARAMWEIBOTYPE"
+					label="WeiboType"
+				>
+                    <option value="fulltext">Full Text</option>
+                    <option value="introtext">Intro Text</option>
+                    <option value="onlytitle">Only Title</option>
+                    <option value="custom">Custom</option>
+                </field>
+                <field name="customstring"  type="text" default="发表了题为《%T》的博文" size="30"
+					label="customstring"
+					description="PARAMCUSTOMSTRING" />
+            </fieldset>
+
+        </fields>
+    </config>
+</install>
