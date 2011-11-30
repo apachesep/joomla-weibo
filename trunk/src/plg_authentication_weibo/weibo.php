@@ -37,7 +37,8 @@ class plgAuthenticationWeibo extends JPlugin {
         $suffixs = array(      // 当传入的用户名，有这些后缀时，本插件认为是微博帐户
             '@sinaweibo',
             '@tencentweibo',
-            '@163weibo',
+            '@neteaseweibo',
+            '@twitterweibo',
         );
         // 本插件认为认证通过有二个条件
         //  $_SESSION['weibouserlogin']  设置成 1

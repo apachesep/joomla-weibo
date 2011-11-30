@@ -68,7 +68,7 @@ class com_weiboInstallerScript {
 // 数据库的创立
         $db = & JFactory::getDBO();
         $sql = 'CREATE TABLE IF NOT EXISTS `#__weibo_auth` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `oauth_token` varchar(255) NOT NULL,
   `oauth_token_secret` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,

@@ -32,92 +32,67 @@ switch ($task) {
     case 'neteasecallback': // 当网易授权正常完成时，将转到task=callback回调
         neteaseCallback();
         break;
+    case 'twitterauth': // 当task=neteaseauth时，将页面转向网易的授权页面
+        HTML_weibo::showTwitterAuth();
+        break;
+    case 'twittercallback': // 当网易授权正常完成时，将转到task=callback回调
+        twitterCallback();
+        break;
     default:
         break;
+}
+
+function weiboCallback( $type ) {
+    $last_key = AuthCallback($type) ;
+    if ($last_key) {
+        // 如果成功取得last_key
+        $db = & JFactory::getDBO();
+
+        // 先将数据库中原有数据无论有无均删除
+        $sql = "DELETE FROM #__weibo_auth WHERE type='".$type."'";
+        $db->setQuery($sql);
+        $db->Query();
+
+        // 将取得的last_key写入数据库中
+        $sql = "INSERT INTO #__weibo_auth(oauth_token,oauth_token_secret,name,type ) VALUES ('$last_key[oauth_token]','$last_key[oauth_token_secret]','$last_key[user_id]','$type') ";
+        $db->setQuery($sql);
+        $db->Query();
+
+        // 显示已经成功获得授权的页面
+        HTML_weibo::finishedWeiboAuth($last_key, $type);
+    } else {
+        // 如果未成功取得last_key，显示出错的页面
+        HTML_weibo::errorWeiboAuth($last_key, $type);
+    }
+    
 }
 
 /**
  * 当腾讯授权正常完成时，将转到task=tencentcallback回调，这时调用这个函数
  */
 function tencentCallback() {
-    
-    $last_key = AuthCallback('tencent') ;
-    if ($last_key) {
-        // 如果成功取得last_key
-        $db = & JFactory::getDBO();
-
-        // 先将数据库中原有数据无论有无均删除
-        $sql = "DELETE FROM #__weibo_auth WHERE type='tencent'";
-        $db->setQuery($sql);
-        $db->Query();
-
-        // 将取得的last_key写入数据库中
-        $sql = "INSERT INTO #__weibo_auth(id,oauth_token,oauth_token_secret,name,type ) VALUES ('1','$last_key[oauth_token]','$last_key[oauth_token_secret]','$last_key[user_id]','tencent') ";
-        $db->setQuery($sql);
-        $db->Query();
-
-        // 显示已经成功获得授权的页面
-        HTML_weibo::finishedTencentAuth($last_key);
-    } else {
-        // 如果未成功取得last_key，显示出错的页面
-        HTML_weibo::errorTencentAuth();
-    }
+    weiboCallback('tencent');
 }
 
 /**
  * 当新浪授权正常完成时，将转到task=sinacallback回调，这时调用这个函数
  */
 function sinaCallback() {
-    $last_key = AuthCallback('sina') ;
-    if ($last_key) {
-        // 如果成功取得last_key
-        $db = & JFactory::getDBO();
-
-        // 先将数据库中原有数据无论有无均删除
-        $sql = "DELETE FROM #__weibo_auth WHERE type='sina'";
-        $db->setQuery($sql);
-        $db->Query();
-
-        // 将取得的last_key写入数据库中
-        $sql = "INSERT INTO #__weibo_auth(id,oauth_token,oauth_token_secret,name,type ) VALUES ('2','$last_key[oauth_token]','$last_key[oauth_token_secret]','$last_key[user_id]', 'sina') ";
-        $db->setQuery($sql);
-        $db->Query();
-
-        // 显示已经成功获得授权的页面
-        HTML_weibo::finishedSinaAuth($last_key);
-    } else {
-        // 如果未成功取得last_key，显示出错的页面
-        HTML_weibo::errorSinaAuth();
-    }
+    weiboCallback('sina');
 }
 
 /**
  * 当网易授权正常完成时，将转到task=neteasecallback回调，这时调用这个函数
  */
 function neteaseCallback() {
+    weiboCallback('netease');
+}
 
-    $last_key = AuthCallback('netease') ;
-    if  ( $last_key ) {
-        // 如果成功取得last_key
-        $db = & JFactory::getDBO();
-
-        // 先将数据库中原有数据无论有无均删除
-        $sql = "DELETE FROM #__weibo_auth WHERE type='netease'";
-        $db->setQuery($sql);
-        $db->Query();
-
-
-        // 将取得的last_key写入数据库中
-        $sql = "INSERT INTO #__weibo_auth(id,oauth_token,oauth_token_secret,name,type ) VALUES ('3','$last_key[oauth_token]','$last_key[oauth_token_secret]','', 'netease') ";
-        $db->setQuery($sql);
-        $db->Query();
-
-        // 显示已经成功获得授权的页面
-        HTML_weibo::finishedNeteaseAuth($last_key);
-    } else {
-        // 如果未成功取得last_key，显示出错的页面
-        HTML_weibo::errorNeteaseAuth();
-    }
+/**
+ * 当Twitter授权正常完成时，将转到task=twittercallback回调，这时调用这个函数
+ */
+function twittercallback() {
+    weiboCallback('twitter');
 }
 
 ?>

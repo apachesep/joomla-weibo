@@ -14,9 +14,7 @@ jimport('joomla.application.component.view');
 define('WEIBO_LIMIT', 140); // 限制字数
 //require_once JPATH_SITE.'/components/com_content/router.php';
 require_once JPATH_SITE . '/components/com_content/helpers/route.php';
-require_once('weibo.sina.php');
-require_once('weibo.tencent.php');
-require_once('weibo.163.php');
+require_once('weibolib.php');
 
 /**
  * 清理文字
@@ -176,6 +174,28 @@ function sendNeteaseWeibo($weibocontent, $P) {
 }
 
 /**
+ * 发送网易微博
+ */
+function sendTwitterWeibo($weibocontent, $P) {
+
+    // 如果没有网易的授权，直接返回
+    if (!$P['twitterlastkey']) {
+        return;
+    }
+
+    $tmhOAuth = new tmhOAuth(array(
+                'consumer_key' => TW_AKEY,
+                'consumer_secret' => TW_SKEY,
+                'user_token' => $P['twitterlastkey']['oauth_token'],
+                'user_secret' => $P['twitterlastkey']['oauth_token_secret'],
+            ));
+
+    $code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
+        'status' => $weibocontent['text']
+            ));
+}
+
+/**
  * Weibo plugin.
  *
  * @package	Joomla.Plugin
@@ -223,7 +243,7 @@ class plgContentWeibo extends JPlugin {
         if ($P['sinaenabled']) {
             // 如果启动新浪微博，则取得数据库中存储的新浪微博授权码
             $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE id = '2' AND type='sina'";
+            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='sina'";
             $db->setQuery($sql);
             $result = $db->loadAssoc();
             $P['sinalastkey'] = $result;
@@ -232,7 +252,7 @@ class plgContentWeibo extends JPlugin {
         if ($P['tencentenabled']) {
             // 如果启动腾讯微博，则取得数据库中存储的腾讯微博授权码
             $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE id = '1' AND type='tencent'";
+            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='tencent'";
             $db->setQuery($sql);
             $result = $db->loadAssoc();
             $P['tencentlastkey'] = $result;
@@ -241,10 +261,19 @@ class plgContentWeibo extends JPlugin {
         if ($P['neteaseenabled']) {
             // 如果启动网易微博，则取得数据库中存储的网易微博授权码
             $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE id = '3' AND type='netease'";
+            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='netease'";
             $db->setQuery($sql);
             $result = $db->loadAssoc();
             $P['neteaselastkey'] = $result;
+        }
+        $P['twitterenabled'] = $this->params->get('twitterenabled', false); //是否启用网易微博
+        if ($P['twitterenabled']) {
+            // 如果启动twitter，则取得数据库中存储的网易微博授权码
+            $db = & JFactory::getDBO();
+            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='twitter'";
+            $db->setQuery($sql);
+            $result = $db->loadAssoc();
+            $P['twitterlastkey'] = $result;
         }
         $P['weibotype'] = $this->params->get('weibotype', 'fulltext'); // 微博发表方式（fulltext，onlytitle，introtext或者custom）
         $P['catid'] = $this->params->get('catid'); // 所指定的分类
@@ -293,6 +322,11 @@ class plgContentWeibo extends JPlugin {
         // 发送网易微博
         if ($P['neteaseenabled'] && $P['neteaselastkey']) {
             sendNeteaseWeibo($weibocontent, $P);
+        }
+
+        // 发送网易微博
+        if ($P['twitterenabled'] && $P['twitterlastkey']) {
+            sendTwitterWeibo($weibocontent, $P);
         }
 
         return true;

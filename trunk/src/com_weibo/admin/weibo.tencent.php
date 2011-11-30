@@ -8,11 +8,10 @@ define("MB_SKEY", "78a9f34b8f1195b9fc1ce374adf0d6f9"); //这里的'*********'请
 define("MB_RETURN_FORMAT", 'json');
 define("MB_API_HOST", 'open.t.qq.com');
 
-
 /**
  * 此函数，返回一个供认证转移的URL
  */
-function AuthUrlGet_tencent( $path ) {
+function AuthUrlGet_tencent($path) {
     $o = new MBOpenTOAuth(MB_AKEY, MB_SKEY);
     $keys = $o->getRequestToken($path); //这是回调的URL 
     $aurl = $o->getAuthorizeURL($keys['oauth_token'], false, '');
@@ -25,27 +24,30 @@ function AuthUrlGet_tencent( $path ) {
  *   last_key  ->  callback得到的last_key
  *   oauth_token ->  上述lastkey中的oauth_token
  *   oauth_token_secret -> 上述lastkey中的oauth_token_secret
- *   user_id -> userid
- *   user_name ->  暂不提供
- *   user_email -> 暂不提供
+ *   user_id -> 用户ID
+ *   user_name ->  用户昵称
+ *   user_email -> 用户邮箱
  */
 function AuthCallback_tencent() {
     // 取得腾讯Auth对象
     $o = new MBOpenTOAuth(MB_AKEY, MB_SKEY, $_SESSION['keys']['oauth_token'], $_SESSION['keys']['oauth_token_secret']);
     // 获取last_key
     $last_key = $o->getAccessToken($_REQUEST['oauth_verifier']);
-    if ( $last_key) {
+    if ($last_key) {
         $rtn = array();
         $rtn['last_key'] = $last_key;
         $rtn['oauth_token'] = $last_key['oauth_token'];
         $rtn['oauth_token_secret'] = $last_key['oauth_token_secret'];
         $rtn['user_id'] = $last_key['name'];
+        $client = new MBApiClient(MB_AKEY, MB_SKEY, $last_key['oauth_token'], $last_key['oauth_token_secret']);
+        $user = $client->getUserInfo();
+        $rtn['user_name'] = $user['data']['nick'];
+        $rtn['user_email'] = $user['data']['email'];
         return $rtn;
-    } else  {
+    } else {
         return $last_key;
     }
 }
-
 
 /*
  * 以下内容，源自腾讯的oauth.php

@@ -26,26 +26,6 @@ class HTML_weibo {
     }
 
     /**
-     * 当授权成功时，显示成功的页面
-     */
-    function finishedTencentAuth($last_key) {
-        ?>
-        已经完成腾讯的认证，您所使用的腾讯微博用户名为“
-        <?php echo $last_key['user_id'] ?>
-        ”，你可以关闭本窗口。
-        <?php
-    }
-
-    /**
-     * 当授权失败时，显示失败的页面
-     */
-    function errorTencentAuth($last_key) {
-        ?>
-        腾讯认证出错。
-        <?php
-    }
-
-    /**
      * 这个数据显示一个页面，它自动会转入新浪授权的页面
      */
     function showSinaAuth() {
@@ -56,26 +36,6 @@ class HTML_weibo {
         <script>
             document.location.href="<?php echo $aurl ?>"
         </script>
-        <?php
-    }
-
-    /**
-     * 当授权成功时，显示成功的页面
-     */
-    function finishedSinaAuth($last_key) {
-        ?>
-        已经完成新浪的认证，您所使用的新浪微博用户id为“
-        <?php echo $last_key['user_id']; ?>
-        ”，你可以关闭本窗口。
-        <?php
-    }
-
-    /**
-     * 当授权失败时，显示失败的页面
-     */
-    function errorSinatAuth($last_key) {
-        ?>
-        新浪认证出错。
         <?php
     }
 
@@ -93,23 +53,49 @@ class HTML_weibo {
         <?php
     }
 
+        /**
+     * 这个数据显示一个页面，它自动会转入腾讯授权的页面
+     */
+    function showTwitterAuth() {
+        $u = & JFactory::getURI();
+        $p = $u->base().'/index.php?option=com_weibo&task=twittercallback';
+        $aurl = AuthUrlGet('twitter', $p);
+if ( $aurl ){
+    ?>
+<a href="<?php echo $aurl;?>" target="_twitter">点击这里</a>进行认证，把看到的数字填入下面的框内。<br />
+<form action="<?php echo JRoute::_('index.php', true); ?>"  method="post" name="ooblogin-form">
+    <input type="text" name="oobpin" />
+    <input type="submit" />
+    <input type="hidden" name="option" value="com_weibo" />
+    <input type="hidden" name="task" value="twittercallback" />
+</form>
+<?php
+} else {
+ ?>   
+无法联系上认证服务器。请返回。<br />（认证服务器可能已经停止，或者天朝内网，无法访问Twitter。）
+<?php }    }
+
+    
     /**
      * 当授权成功时，显示成功的页面
      */
-    function finishedNeteaseAuth($last_key) {
+    function finishedWeiboAuth($last_key, $zhtype) {
         ?>
-        已经完成网易的认证，你可以关闭本窗口。
+        已经完成<?php echo $zhtype; ?>的认证，您所使用的用户名为“
+        <?php echo $last_key['user_id'] ?>
+        ”，你可以关闭本窗口。
         <?php
     }
 
     /**
      * 当授权失败时，显示失败的页面
      */
-    function errorNeteaseAuth($last_key) {
-        ?>
-        网易认证出错。
+    function errorTwitterAuth($last_key,$zhtype) {
+        echo $zhtype; ?>
+        认证出错。
         <?php
     }
 
+    
 }
 ?>
