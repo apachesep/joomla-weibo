@@ -62,6 +62,14 @@
                     <option value="0">JNo</option>
                     <option value="1">JYes</option>
                 </field>
+                <field name="twitterenabled" type="radio"
+					default="1"
+					description="MOD_WEIBOLOGIN_TWITTER"
+					label="MOD_WEIBOLOGIN_TWITTER"
+				>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
                 <field name="logosize" type="radio"
 					default="0"
 					description="MOD_WEIBOLOGIN_SIZE"
@@ -85,6 +93,10 @@
             <option value="1">JYes</option>
         </param>
  <param name="neteaseenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_NETEASE" description="MOD_WEIBOLOGIN_NETEASE">
+            <option value="0">JNo</option>
+            <option value="1">JYes</option>
+        </param>
+ <param name="twitterenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_TWITTER" description="MOD_WEIBOLOGIN_TWITTER">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>

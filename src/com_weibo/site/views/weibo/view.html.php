@@ -33,11 +33,27 @@ class WeiboViewWeibo extends JView
 		parent::display($tpl);
 	}
         
+        function weibologinerror($type, $zhtype,$tpl = null) 
+	{
+		// Assign data to the view
+		$this->msg = $zhtype. ' 认证失败';
+                $this->auth = 'weibologinerror';
+		parent::display($tpl);
+	}
+        
         function weiboprelogin($tpl = null) 
 	{
 		// Assign data to the view
 		$this->msg = 'No Access';
                 $this->auth = 'weiboprelogin';
+		parent::display($tpl);
+	}
+        
+        function oobprelogin($tpl = null) 
+	{
+		// Assign data to the view
+		$this->msg = 'No Access';
+                $this->auth = 'oobprelogin';
 		parent::display($tpl);
 	}
 }

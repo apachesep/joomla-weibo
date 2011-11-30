@@ -41,6 +41,23 @@ if(version_compare(JVERSION,'1.6.0','ge')) {
 ?><script>
 document.location.href="<?php echo $this->weibourl?>"
 </script><?php
+} elseif ( $this->auth == 'oobprelogin') {
+if ( $this->weibourl ){
+    ?>
+<a href="<?php echo $this->weibourl;?>" target="_twitter">点击这里</a>进行认证，把看到的数字填入下面的框内。<br />
+<form action="<?php echo JRoute::_('index.php', true); ?>"  method="post" name="ooblogin-form">
+    <input type="text" name="oobpin" />
+    <input type="submit" />
+    <input type="hidden" name="option" value="com_weibo" />
+    <input type="hidden" name="task" value="twitterlogin" />
+    <input type="hidden" name="rid" value="<?php echo $this->return;?>" />
+</form>
+
+<?php
+} else {
+ ?>   
+无法联系上认证服务器。请返回。<br />（认证服务器可能已经停止，或者天朝内网，无法访问Twitter。）
+<?php }
 } else {
 ?>
 <h1><?php echo $this->msg; ?></h1>

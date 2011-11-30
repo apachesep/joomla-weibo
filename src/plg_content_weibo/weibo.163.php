@@ -1,38 +1,79 @@
 <?php
+
 /*
  * 以下内容，源自网易的config.php
  */
-define( "CONSUMER_KEY" , 'pCQOiAtXF2mSkeLZ' );
-define( "CONSUMER_SECRET" , '9IuwDY3ffSmtLzaLcy099K2XBFRomuIf' );
+define("CONSUMER_KEY", 'pCQOiAtXF2mSkeLZ');
+define("CONSUMER_SECRET", '9IuwDY3ffSmtLzaLcy099K2XBFRomuIf');
+
+/**
+ * 此函数，返回一个供认证转移的URL
+ */
+function AuthUrlGet_netease($path) {
+    $oauth = new ONAuth(CONSUMER_KEY, CONSUMER_SECRET);
+    $keys = $oauth->getRequestToken();
+    $aurl = $oauth->getAuthorizeURL($keys['oauth_token'], $path);
+    $_SESSION['request_token'] = $keys;
+    return $aurl;
+}
+
+/**
+ * 此函数，供Callback处调用，如果返回false，认证失败，否则返回以下哈希表：
+ *   lastkey  ->  callback得到的lastkey
+ *   oauth_token ->  上述lastkey中的oauth_token
+ *   oauth_token_secret -> 上述lastkey中的oauth_token_secret
+ *   user_id -> 用户ID
+ *   user_name ->  用户昵称
+ *   user_email -> 用户邮箱
+ */
+function AuthCallback_netease() {
+    // 取得网易Auth对象
+    $o = new ONAuth(CONSUMER_KEY, CONSUMER_SECRET, $_SESSION['request_token']['oauth_token'], $_SESSION['request_token']['oauth_token_secret']);
+    // 取得lastkey
+    $last_key = $o->getAccessToken($_REQUEST['oauth_token']);
+    if ($last_key) {
+        $rtn = array();
+        $rtn['last_key'] = $last_key;
+        $rtn['oauth_token'] = $last_key['oauth_token'];
+        $rtn['oauth_token_secret'] = $last_key['oauth_token_secret'];
+        $client = new TBlog(CONSUMER_KEY, CONSUMER_SECRET, $last_key['oauth_token'], $last_key['oauth_token_secret']);
+        $user = $client->verify_credentials();
+        $rtn['user_id'] = $user['screen_name'];
+        $rtn['user_name'] = $user['name'];
+        $rtn['user_email'] = $user['email'];
+        return $rtn;
+    } else {
+        return $last_key;
+    }
+}
 
 /*
  * 以下内容，源自网易的oauth_lib.class.php
  * 所有的源文件中的OAuth均改成ONAuth
  */
-class ONAuthException extends Exception
-{
+
+class ONAuthException extends Exception {
     // pass
 }
 
-class ONAuthConsumer
-{
+class ONAuthConsumer {
+
     public $key;
     public $secret;
 
-    function __construct($key, $secret)
-    {
+    function __construct($key, $secret) {
         $this->key = $key;
         $this->secret = $secret;
     }
 
-    function __toString()
-    {
+    function __toString() {
         return "ONAuthConsumer[key=$this->key,secret=$this->secret]";
     }
+
 }
 
-class ONAuthToken
-{
+class ONAuthToken {
+
     public $key;
     public $secret;
 
@@ -40,8 +81,7 @@ class ONAuthToken
      * key = the token
      * secret = the token secret
      */
-    function __construct($key, $secret)
-    {
+    function __construct($key, $secret) {
         $this->key = $key;
         $this->secret = $secret;
     }
@@ -54,33 +94,31 @@ class ONAuthToken
      * generates the basic string serialization of a token that a server
      * would respond to request_token and access_token calls with
      */
-    function to_string()
-    {
+    function to_string() {
         return "oauth_token="
-            . ONAuthUtil::urlencode_rfc3986($this->key)
-            . "&oauth_token_secret="
-            . ONAuthUtil::urlencode_rfc3986($this->secret);
+                . ONAuthUtil::urlencode_rfc3986($this->key)
+                . "&oauth_token_secret="
+                . ONAuthUtil::urlencode_rfc3986($this->secret);
     }
+
 }
 
-class ONAuthSignatureMethod
-{
-    public function check_signature(&$request, $consumer, $token, $signature)
-    {
+class ONAuthSignatureMethod {
+
+    public function check_signature(&$request, $consumer, $token, $signature) {
         $built = $this->build_signature($request, $consumer, $token);
         return $built == $signature;
     }
+
 }
 
-class ONAuthSignatureMethod_HMAC_SHA1 extends ONAuthSignatureMethod
-{
-    function get_name()
-    {
+class ONAuthSignatureMethod_HMAC_SHA1 extends ONAuthSignatureMethod {
+
+    function get_name() {
         return "HMAC-SHA1";
     }
 
-    public function build_signature($request, $consumer, $token)
-    {
+    public function build_signature($request, $consumer, $token) {
         $base_string = $request->get_signature_base_string();
         $request->base_string = $base_string;
         $key_parts = array($consumer->secret, ($token) ? $token->secret : "");
@@ -88,21 +126,20 @@ class ONAuthSignatureMethod_HMAC_SHA1 extends ONAuthSignatureMethod
         $key = implode('&', $key_parts);
         return base64_encode(hash_hmac('sha1', $base_string, $key, true));
     }
+
 }
 
-class ONAuthRequest
-{
+class ONAuthRequest {
+
     private $parameters;
     private $http_method;
     private $http_url;
-
     // for debug purposes
     public $base_string;
     public static $version = '1.0';
     public static $POST_INPUT = 'php://input';
 
-    function __construct($http_method, $http_url, $parameters=NULL)
-    {
+    function __construct($http_method, $http_url, $parameters=NULL) {
         @$parameters or $parameters = array();
         $this->parameters = $parameters;
         $this->http_method = $http_method;
@@ -112,23 +149,19 @@ class ONAuthRequest
     /**
      * attempt to build up a request from what was passed to the server
      */
-    public static function from_request($http_method=NULL, $http_url=NULL, $parameters=NULL)
-    {
-        $scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on")
-            ? 'http'
-            : 'https';
+    public static function from_request($http_method=NULL, $http_url=NULL, $parameters=NULL) {
+        $scheme = (!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") ? 'http' : 'https';
         @$http_url or $http_url = $scheme . '://'
-            . $_SERVER['HTTP_HOST'] . ':'
-            . $_SERVER['SERVER_PORT']
-            . $_SERVER['REQUEST_URI'];
+                . $_SERVER['HTTP_HOST'] . ':'
+                . $_SERVER['SERVER_PORT']
+                . $_SERVER['REQUEST_URI'];
         @$http_method or $http_method = $_SERVER['REQUEST_METHOD'];
 
         // We weren't handed any parameters, so let's find the ones relevant to
         // this request.
         // If you run XML-RPC or similar you should use this to provide your own
         // parsed parameter-list
-        if (!$parameters)
-        {
+        if (!$parameters) {
             // Find request headers
             $request_headers = ONAuthUtil::get_headers();
 
@@ -138,19 +171,16 @@ class ONAuthRequest
             // It's a POST request of the proper content-type, so parse POST
             // parameters and add those overriding any duplicates from GET
             if ($http_method == "POST"
-                && @strstr($request_headers["Content-Type"],
-                    "application/x-www-form-urlencoded"))
-            {
+                    && @strstr($request_headers["Content-Type"], "application/x-www-form-urlencoded")) {
                 $post_data = ONAuthUtil::parse_parameters(
-                    file_get_contents(self::$POST_INPUT)
+                                file_get_contents(self::$POST_INPUT)
                 );
                 $parameters = array_merge($parameters, $post_data);
             }
 
             // We have a Authorization-header with ONAuth data. Parse the header
             // and add those overriding any duplicates from GET or POST
-            if (@substr($request_headers['Authorization'], 0, 6) == "ONAuth ")
-            {
+            if (@substr($request_headers['Authorization'], 0, 6) == "ONAuth ") {
                 $header_parameters = ONAuthUtil::split_header($request_headers['Authorization']);
                 $parameters = array_merge($parameters, $header_parameters);
             }
@@ -161,8 +191,7 @@ class ONAuthRequest
     /**
      * pretty much a helper function to set up the request
      */
-    public static function from_consumer_and_token($consumer, $token, $http_method, $http_url, $parameters=NULL)
-    {
+    public static function from_consumer_and_token($consumer, $token, $http_method, $http_url, $parameters=NULL) {
         @$parameters or $parameters = array();
         $defaults = array("oauth_version" => ONAuthRequest::$version,
             "oauth_nonce" => ONAuthRequest::generate_nonce(),
@@ -176,37 +205,29 @@ class ONAuthRequest
         return new ONAuthRequest($http_method, $http_url, $parameters);
     }
 
-    public function set_parameter($name, $value, $allow_duplicates = true)
-    {
-        if ($allow_duplicates && isset($this->parameters[$name]))
-        {
+    public function set_parameter($name, $value, $allow_duplicates = true) {
+        if ($allow_duplicates && isset($this->parameters[$name])) {
             // We have already added parameter(s) with this name, so add to the list
-            if (is_scalar($this->parameters[$name]))
-            {
+            if (is_scalar($this->parameters[$name])) {
                 // This is the first duplicate, so transform scalar (string)
                 // into an array so we can add the duplicates
                 $this->parameters[$name] = array($this->parameters[$name]);
             }
             $this->parameters[$name][] = $value;
-        }
-        else
-        {
+        } else {
             $this->parameters[$name] = $value;
         }
     }
 
-    public function get_parameter($name)
-    {
+    public function get_parameter($name) {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
-    public function get_parameters()
-    {
+    public function get_parameters() {
         return $this->parameters;
     }
 
-    public function unset_parameter($name)
-    {
+    public function unset_parameter($name) {
         unset($this->parameters[$name]);
     }
 
@@ -214,26 +235,22 @@ class ONAuthRequest
      * The request parameters, sorted and concatenated into a normalized string.
      * @return string
      */
-    public function get_signable_parameters()
-    {
+    public function get_signable_parameters() {
         // Grab all parameters
         $params = $this->parameters;
 
         // remove pic
-        if (isset($params['pic']))
-        {
+        if (isset($params['pic'])) {
             unset($params['pic']);
         }
 
-          if (isset($params['image']))
-         {
+        if (isset($params['image'])) {
             unset($params['image']);
         }
 
         // Remove oauth_signature if present
         // Ref: Spec: 9.1.1 ("The oauth_signature parameter MUST be excluded.")
-        if (isset($params['oauth_signature']))
-        {
+        if (isset($params['oauth_signature'])) {
             unset($params['oauth_signature']);
         }
 
@@ -264,8 +281,7 @@ class ONAuthRequest
     /**
      * just uppercases the http method
      */
-    public function get_normalized_http_method()
-    {
+    public function get_normalized_http_method() {
         return strtoupper($this->http_method);
     }
 
@@ -273,8 +289,7 @@ class ONAuthRequest
      * parses the url and rebuilds it to be
      * scheme://host/path
      */
-    public function get_normalized_http_url()
-    {
+    public function get_normalized_http_url() {
         $parts = parse_url($this->http_url);
         $port = @$parts['port'];
         $scheme = $parts['scheme'];
@@ -283,9 +298,8 @@ class ONAuthRequest
         $port or $port = ($scheme == 'https') ? '443' : '80';
 
         if (($scheme == 'https' && $port != '443')
-            || ($scheme == 'http' && $port != '80'))
-        {
-                $host = "$host:$port";
+                || ($scheme == 'http' && $port != '80')) {
+            $host = "$host:$port";
         }
         return "$scheme://$host$path";
     }
@@ -293,13 +307,11 @@ class ONAuthRequest
     /**
      * builds a url usable for a GET request
      */
-    public function to_url()
-    {
+    public function to_url() {
         $post_data = $this->to_postdata();
         $out = $this->get_normalized_http_url();
-        if ($post_data)
-        {
-            $out .= '?'.$post_data;
+        if ($post_data) {
+            $out .= '?' . $post_data;
         }
         return $out;
     }
@@ -307,27 +319,24 @@ class ONAuthRequest
     /**
      * builds the data one would send in a POST request
      */
-    public function to_postdata( $multi = false )
-    {
-    //echo "multi=" . $multi . '`';
-    if($multi)
-        return ONAuthUtil::build_http_query_multi($this->parameters);
-    else
-        return ONAuthUtil::build_http_query($this->parameters);
+    public function to_postdata($multi = false) {
+        //echo "multi=" . $multi . '`';
+        if ($multi)
+            return ONAuthUtil::build_http_query_multi($this->parameters);
+        else
+            return ONAuthUtil::build_http_query($this->parameters);
     }
 
     /**
      * builds the Authorization: header
      */
-    public function to_header()
-    {
-        $out ='Authorization: OAuth realm=""';
+    public function to_header() {
+        $out = 'Authorization: OAuth realm=""';
         $total = array();
-        foreach ($this->parameters as $k => $v)
-        {
-            if (substr($k, 0, 5) != "oauth") continue;
-            if (is_array($v))
-            {
+        foreach ($this->parameters as $k => $v) {
+            if (substr($k, 0, 5) != "oauth")
+                continue;
+            if (is_array($v)) {
                 throw new ONAuthException('Arrays not supported in headers');
             }
             $out .= ',' . ONAuthUtil::urlencode_rfc3986($k)
@@ -336,20 +345,17 @@ class ONAuthRequest
         return $out;
     }
 
-    public function __toString()
-    {
+    public function __toString() {
         return $this->to_url();
     }
 
-    public function sign_request($signature_method, $consumer, $token)
-    {
+    public function sign_request($signature_method, $consumer, $token) {
         $this->set_parameter("oauth_signature_method", $signature_method->get_name(), false);
         $signature = $this->build_signature($signature_method, $consumer, $token);
         $this->set_parameter("oauth_signature", $signature, false);
     }
 
-    public function build_signature($signature_method, $consumer, $token)
-    {
+    public function build_signature($signature_method, $consumer, $token) {
         $signature = $signature_method->build_signature($this, $consumer, $token);
         return $signature;
     }
@@ -357,36 +363,33 @@ class ONAuthRequest
     /**
      * util function: current timestamp
      */
-    private static function generate_timestamp()
-    {
+    private static function generate_timestamp() {
         return time();
     }
 
     /**
      * util function: current nonce
      */
-    private static function generate_nonce()
-    {
+    private static function generate_nonce() {
         $mt = microtime();
         $rand = mt_rand();
         return md5($mt . $rand); // md5s look nicer than numbers
     }
+
 }
 
-class ONAuthServer
-{
+class ONAuthServer {
+
     protected $timestamp_threshold = 300;    // in seconds, five minutes
     protected $version = 1.0;
     protected $signature_methods = array();
     protected $data_store;
 
-    function __construct($data_store)
-    {
+    function __construct($data_store) {
         $this->data_store = $data_store;
     }
 
-    public function add_signature_method($signature_method)
-    {
+    public function add_signature_method($signature_method) {
         $this->signature_methods[$signature_method->get_name()] = $signature_method;
     }
 
@@ -394,8 +397,7 @@ class ONAuthServer
      * process a request_token request
      * returns the request token on success
      */
-    public function fetch_request_token(&$request)
-    {
+    public function fetch_request_token(&$request) {
         $this->get_version($request);
         $consumer = $this->get_consumer($request);
 
@@ -410,8 +412,7 @@ class ONAuthServer
      * process an access_token request
      * returns the access token on success
      */
-    public function fetch_access_token(&$request)
-    {
+    public function fetch_access_token(&$request) {
         $this->get_version($request);
         $consumer = $this->get_consumer($request);
 
@@ -425,8 +426,7 @@ class ONAuthServer
     /**
      * verify an api call, checks all the parameters
      */
-    public function verify_request(&$request)
-    {
+    public function verify_request(&$request) {
         $this->get_version($request);
         $consumer = $this->get_consumer($request);
         $token = $this->get_token($request, $consumer, "access");
@@ -438,15 +438,12 @@ class ONAuthServer
     /**
      * version 1
      */
-    private function get_version(&$request)
-    {
+    private function get_version(&$request) {
         $version = $request->get_parameter("oauth_version");
-        if (!$version)
-        {
+        if (!$version) {
             $version = 1.0;
         }
-        if ($version && $version != $this->version)
-        {
+        if ($version && $version != $this->version) {
             throw new ONAuthException("OAuth version '$version' not supported");
         }
         return $version;
@@ -457,18 +454,17 @@ class ONAuthServer
      */
     private function get_signature_method(&$request) {
         $signature_method =
-            @$request->get_parameter("oauth_signature_method");
+                @$request->get_parameter("oauth_signature_method");
         if (!$signature_method) {
             $signature_method = "PLAINTEXT";
         }
-        if (!in_array($signature_method,
-            array_keys($this->signature_methods))) {
-                throw new ONAuthException(
+        if (!in_array($signature_method, array_keys($this->signature_methods))) {
+            throw new ONAuthException(
                     "Signature method '$signature_method' not supported " .
                     "try one of the following: " .
                     implode(", ", array_keys($this->signature_methods))
-                );
-            }
+            );
+        }
         return $this->signature_methods[$signature_method];
     }
 
@@ -495,7 +491,7 @@ class ONAuthServer
     private function get_token(&$request, $consumer, $token_type="access") {
         $token_field = @$request->get_parameter('oauth_token');
         $token = $this->data_store->lookup_token(
-            $consumer, $token_type, $token_field
+                $consumer, $token_type, $token_field
         );
         if (!$token) {
             throw new ONAuthException("Invalid $token_type token: $token_field");
@@ -519,10 +515,7 @@ class ONAuthServer
 
         $signature = $request->get_parameter('oauth_signature');
         $valid_sig = $signature_method->check_signature(
-            $request,
-            $consumer,
-            $token,
-            $signature
+                $request, $consumer, $token, $signature
         );
 
         if (!$valid_sig) {
@@ -538,7 +531,7 @@ class ONAuthServer
         $now = time();
         if ($now - $timestamp > $this->timestamp_threshold) {
             throw new ONAuthException(
-                "Expired timestamp, yours $timestamp, ours $now"
+                    "Expired timestamp, yours $timestamp, ours $now"
             );
         }
     }
@@ -549,35 +542,28 @@ class ONAuthServer
     private function check_nonce($consumer, $token, $nonce, $timestamp) {
         // verify that the nonce is uniqueish
         $found = $this->data_store->lookup_nonce(
-            $consumer,
-            $token,
-            $nonce,
-            $timestamp
+                $consumer, $token, $nonce, $timestamp
         );
         if ($found) {
             throw new ONAuthException("Nonce already used: $nonce");
         }
     }
+
 }
 
 /**
  * @ignore
  */
-class ONAuthUtil
-{
+class ONAuthUtil {
+
     public static $boundary = '';
-    public static function urlencode_rfc3986($input)
-    {
-        if (is_array($input))
-        {
+
+    public static function urlencode_rfc3986($input) {
+        if (is_array($input)) {
             return array_map(array('ONAuthUtil', 'urlencode_rfc3986'), $input);
-        }
-        else if (is_scalar($input))
-        {
+        } else if (is_scalar($input)) {
             return str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($input)));
-        }
-        else
-        {
+        } else {
             return '';
         }
     }
@@ -585,33 +571,28 @@ class ONAuthUtil
     // This decode function isn't taking into consideration the above
     // modifications to the encoding process. However, this method doesn't
     // seem to be used anywhere so leaving it as is.
-    public static function urldecode_rfc3986($string)
-    {
+    public static function urldecode_rfc3986($string) {
         return urldecode($string);
     }
 
     // Utility function for turning the Authorization: header into
     // parameters, has to do some unescaping
     // Can filter out any non-oauth parameters if needed (default behaviour)
-    public static function split_header($header, $only_allow_oauth_parameters = true)
-    {
+    public static function split_header($header, $only_allow_oauth_parameters = true) {
         $pattern = '/(([-_a-z]*)=("([^"]*)"|([^,]*)),?)/';
         $offset = 0;
         $params = array();
-        while (preg_match($pattern, $header, $matches, PREG_OFFSET_CAPTURE, $offset) > 0)
-        {
+        while (preg_match($pattern, $header, $matches, PREG_OFFSET_CAPTURE, $offset) > 0) {
             $match = $matches[0];
             $header_name = $matches[2][0];
             $header_content = (isset($matches[5])) ? $matches[5][0] : $matches[4][0];
-            if (preg_match('/^oauth_/', $header_name) || !$only_allow_oauth_parameters)
-            {
+            if (preg_match('/^oauth_/', $header_name) || !$only_allow_oauth_parameters) {
                 $params[$header_name] = ONAuthUtil::urldecode_rfc3986($header_content);
             }
             $offset = $match[1] + strlen($match[0]);
         }
 
-        if (isset($params['realm']))
-        {
+        if (isset($params['realm'])) {
             unset($params['realm']);
         }
 
@@ -619,10 +600,8 @@ class ONAuthUtil
     }
 
     // helper to try to sort out headers for people who aren't running apache
-    public static function get_headers()
-    {
-        if (function_exists('apache_request_headers'))
-        {
+    public static function get_headers() {
+        if (function_exists('apache_request_headers')) {
             // we need this to get the actual Authorization: header
             // because apache tends to tell us it doesn't exist
             return apache_request_headers();
@@ -630,10 +609,8 @@ class ONAuthUtil
         // otherwise we don't have apache and are just going to have to hope
         // that $_SERVER actually contains what we need
         $out = array();
-        foreach ($_SERVER as $key => $value)
-        {
-            if (substr($key, 0, 5) == "HTTP_")
-            {
+        foreach ($_SERVER as $key => $value) {
+            if (substr($key, 0, 5) == "HTTP_") {
                 // this is chaos, basically it is just there to capitalize the first
                 // letter of every word that is not an initial HTTP and strip HTTP
                 // code from przemek
@@ -648,43 +625,38 @@ class ONAuthUtil
     // This function takes a input like a=b&a=c&d=e and returns the parsed
     // parameters like this
     // array('a' => array('b','c'), 'd' => 'e')
-    public static function parse_parameters( $input )
-    {
-        if (!isset($input) || !$input) return array();
+    public static function parse_parameters($input) {
+        if (!isset($input) || !$input)
+            return array();
 
         $pairs = explode('&', $input);
         $parsed_parameters = array();
 
-        foreach ($pairs as $pair)
-        {
+        foreach ($pairs as $pair) {
             $split = explode('=', $pair, 2);
             $parameter = ONAuthUtil::urldecode_rfc3986($split[0]);
             $value = isset($split[1]) ? ONAuthUtil::urldecode_rfc3986($split[1]) : '';
 
-            if (isset($parsed_parameters[$parameter]))
-            {
+            if (isset($parsed_parameters[$parameter])) {
                 // We have already recieved parameter(s) with this name, so add to the list
                 // of parameters with this name
 
-                if (is_scalar($parsed_parameters[$parameter]))
-                {
+                if (is_scalar($parsed_parameters[$parameter])) {
                     // This is the first duplicate, so transform scalar (string) into an array
                     // so we can add the duplicates
                     $parsed_parameters[$parameter] = array($parsed_parameters[$parameter]);
                 }
                 $parsed_parameters[$parameter][] = $value;
-            }
-            else
-            {
+            } else {
                 $parsed_parameters[$parameter] = $value;
             }
         }
         return $parsed_parameters;
     }
 
-    public static function build_http_query_multi($params)
-    {
-        if (!$params) return '';
+    public static function build_http_query_multi($params) {
+        if (!$params)
+            return '';
 
         // Urlencode both keys and values
         $keys = array_keys($params);
@@ -698,42 +670,38 @@ class ONAuthUtil
         $pairs = array();
 
         self::$boundary = $boundary = uniqid('------------------');
-        $MPboundary = '--'.$boundary;
-        $endMPboundary = $MPboundary. '--';
+        $MPboundary = '--' . $boundary;
+        $endMPboundary = $MPboundary . '--';
         $multipartbody = '';
 
-        foreach ($params as $parameter => $value)
-        {
-            if( in_array($parameter,array("pic","image")) && $value{0} == '@' )
-            {
-                $url = ltrim( $value , '@' );
-                $content = file_get_contents( $url );
-                $filename = reset( explode( '?' , basename( $url ) ));
+        foreach ($params as $parameter => $value) {
+            if (in_array($parameter, array("pic", "image")) && $value{0} == '@') {
+                $url = ltrim($value, '@');
+                $content = file_get_contents($url);
+                $filename = reset(explode('?', basename($url)));
                 $mime = self::get_image_mime($url);
 
                 $multipartbody .= $MPboundary . "\r\n";
-                $multipartbody .= 'Content-Disposition: form-data; name="' . $parameter . '"; filename="' . $filename . '"'. "\r\n";
-                $multipartbody .= 'Content-Type: '. $mime . "\r\n\r\n";
-                $multipartbody .= $content. "\r\n";
-            }
-            else
-            {
+                $multipartbody .= 'Content-Disposition: form-data; name="' . $parameter . '"; filename="' . $filename . '"' . "\r\n";
+                $multipartbody .= 'Content-Type: ' . $mime . "\r\n\r\n";
+                $multipartbody .= $content . "\r\n";
+            } else {
                 $multipartbody .= $MPboundary . "\r\n";
-                $multipartbody .= 'content-disposition: form-data; name="'.$parameter."\"\r\n\r\n";
-                $multipartbody .= $value."\r\n";
+                $multipartbody .= 'content-disposition: form-data; name="' . $parameter . "\"\r\n\r\n";
+                $multipartbody .= $value . "\r\n";
             }
         }
 
-        $multipartbody .=  $endMPboundary;
+        $multipartbody .= $endMPboundary;
         // For each parameter, the name is separated from the corresponding value by an '=' character (ASCII code 61)
         // Each name-value pair is separated by an '&' character (ASCII code 38)
         // echo $multipartbody;
         return $multipartbody;
     }
 
-    public static function build_http_query($params)
-    {
-        if (!$params) return '';
+    public static function build_http_query($params) {
+        if (!$params)
+            return '';
 
         // Urlencode both keys and values
         $keys = ONAuthUtil::urlencode_rfc3986(array_keys($params));
@@ -745,20 +713,15 @@ class ONAuthUtil
         uksort($params, 'strcmp');
 
         $pairs = array();
-        foreach ($params as $parameter => $value)
-        {
-            if (is_array($value))
-            {
+        foreach ($params as $parameter => $value) {
+            if (is_array($value)) {
                 // If two or more parameters share the same name, they are sorted by their value
                 // Ref: Spec: 9.1.1 (1)
                 natsort($value);
-                foreach ($value as $duplicate_value)
-                {
+                foreach ($value as $duplicate_value) {
                     $pairs[] = $parameter . '=' . $duplicate_value;
                 }
-            }
-            else
-            {
+            } else {
                 $pairs[] = $parameter . '=' . $value;
             }
         }
@@ -767,11 +730,9 @@ class ONAuthUtil
         return implode('&', $pairs);
     }
 
-    public static function get_image_mime( $file )
-    {
-        $ext = strtolower(pathinfo( $file , PATHINFO_EXTENSION ));
-        switch( $ext )
-        {
+    public static function get_image_mime($file) {
+        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+        switch ($ext) {
             case 'jpg':
             case 'jpeg':
                 $mime = 'image/jpg';
@@ -789,6 +750,7 @@ class ONAuthUtil
         }
         return $mime;
     }
+
 }
 
 /*
@@ -799,8 +761,9 @@ class ONAuthUtil
 /**
  * 网易微博操作类
  */
-class TBlog
-{
+
+class TBlog {
+
     /**
      * 构造函数
      *
@@ -811,8 +774,7 @@ class TBlog
      * @param mixed $accecss_token_secret OAuth认证返回的token secret
      * @return void
      */
-    function __construct($akey, $skey, $accecss_token, $accecss_token_secret)
-    {
+    function __construct($akey, $skey, $accecss_token, $accecss_token_secret) {
         $this->oauth = new ONAuth($akey, $skey, $accecss_token, $accecss_token_secret);
     }
 
@@ -822,8 +784,7 @@ class TBlog
      * @access public
      * @return array
      */
-    function public_timeline()
-    {
+    function public_timeline() {
         return $this->oauth->get('http://api.t.163.com/statuses/public_timeline.json');
     }
 
@@ -833,8 +794,7 @@ class TBlog
      * @access public
      * @return array
      */
-    function friends_timeline()
-    {
+    function friends_timeline() {
         return $this->home_timeline();
     }
 
@@ -844,8 +804,7 @@ class TBlog
      * @access public
      * @return array
      */
-    function home_timeline($count=30, $since=false, $max=false, $trim=false)
-    {
+    function home_timeline($count=30, $since=false, $max=false, $trim=false) {
         return $this->request_163('http://api.t.163.com/statuses/home_timeline.json', $count, $since, $max, $trim);
     }
 
@@ -856,8 +815,7 @@ class TBlog
      * @param int $count 每次返回的最大记录数（即页面大小），不大于200，默认为30。
      * @return array
      */
-    function mentions($count=30, $since=false, $max=false, $trim=false)
-    {
+    function mentions($count=30, $since=false, $max=false, $trim=false) {
         return $this->request_163('http://api.t.163.com/statuses/mentions.json', $count, $since, $max, $trim);
     }
 
@@ -868,14 +826,13 @@ class TBlog
      * @param mixed $text 要更新的微博信息。
      * @return array
      */
-    function update($text)
-    {
+    function update($text) {
         $param = array();
         $param['status'] = $text;
         return $this->oauth->post('http://api.t.163.com/statuses/update.json', $param);
     }
 
-	 /**
+    /**
      * 上传图片
      *
      * @access public
@@ -883,13 +840,12 @@ class TBlog
      * @param string $text 要发布的图片路径,支持url。[只支持png/jpg/gif三种格式,增加格式请修改get_image_mime方法]
      * @return array
      */
-    function uploadImage($pic_path)
-    {
+    function uploadImage($pic_path) {
         $param = array();
-        $param['pic'] = '@'.$pic_path;
+        $param['pic'] = '@' . $pic_path;
         $pic = $this->oauth->post('http://api.t.163.com/statuses/upload.json', $param, true);
-		$param['url'] =$pic;
-		return $param;
+        $param['url'] = $pic;
+        return $param;
     }
 
     /**
@@ -900,14 +856,13 @@ class TBlog
      * @param string $text 要发布的图片路径,支持url。[只支持png/jpg/gif三种格式,增加格式请修改get_image_mime方法]
      * @return array
      */
-    function upload($text, $pic_path)
-    {
+    function upload($text, $pic_path) {
         $param = array();
-        $param['pic'] = "@".$pic_path;
+        $param['pic'] = "@" . $pic_path;
         $pic = $this->oauth->post('http://api.t.163.com/statuses/upload.json', $param, true);
         $param1 = array();
-        $param1['status'] = isset($text) ? $text." ".$pic['upload_image_url'] : $pic['upload_image_url'];
-        return $this->oauth->post('http://api.t.163.com/statuses/update.json' , $param1);
+        $param1['status'] = isset($text) ? $text . " " . $pic['upload_image_url'] : $pic['upload_image_url'];
+        return $this->oauth->post('http://api.t.163.com/statuses/update.json', $param1);
     }
 
     /**
@@ -917,8 +872,7 @@ class TBlog
      * @param mixed $sid 要获取已发表的微博ID
      * @return array
      */
-    function show_status($sid)
-    {
+    function show_status($sid) {
         return $this->oauth->get('http://api.t.163.com/statuses/show/' . $sid . '.json');
     }
 
@@ -927,8 +881,7 @@ class TBlog
      *
      * @return array
      */
-    function latest()
-    {
+    function latest() {
         return $this->oauth->get('http://api.t.163.com/reminds/message/latest.json');
     }
 
@@ -939,8 +892,7 @@ class TBlog
      * @param mixed $sid 要删除的微博ID
      * @return array
      */
-    function delete($sid)
-    {
+    function delete($sid) {
         return $this->destroy($sid);
     }
 
@@ -951,8 +903,7 @@ class TBlog
      * @param mixed $sid 要删除的微博ID
      * @return array
      */
-    function destroy($sid)
-    {
+    function destroy($sid) {
         return $this->oauth->post('http://api.t.163.com/statuses/destroy/' . $sid . '.json');
     }
 
@@ -963,10 +914,10 @@ class TBlog
      * @param mixed $sid 要查询的微博ID
      * @return array
      */
-    function retweeted_by($sid, $count=false)
-    {
+    function retweeted_by($sid, $count=false) {
         $param = array();
-        if($count)$param['count'] = $count;
+        if ($count)
+            $param['count'] = $count;
         return $this->oauth->get('http://api.t.163.com/statuses/' . $sid . '/retweeted_by.json');
     }
 
@@ -977,15 +928,13 @@ class TBlog
      * @param mixed $uid_or_name 用户UID或微博昵称
      * @return array
      */
-    function show_user_id($id_or_screen_name)
-    {
+    function show_user_id($id_or_screen_name) {
         $param = array();
         $param['id'] = $id_or_screen_name;
         return $this->oauth->get('http://api.t.163.com/users/show.json', $param);
     }
 
-    function show_user_name($name)
-    {
+    function show_user_name($name) {
         $param = array();
         $param['name'] = $name;
         return $this->oauth->get('http://api.t.163.com/users/show.json', $param);
@@ -1000,8 +949,7 @@ class TBlog
      * @param mixed $uid_or_name 要获取的 UID或微博昵称
      * @return array
      */
-    function friends($uid_or_screen_name, $cursor = false)
-    {
+    function friends($uid_or_screen_name, $cursor = false) {
         return $this->request_with_uid('http://api.t.163.com/statuses/friends.json', $uid_or_screen_name, false, false, $cursor);
     }
 
@@ -1014,8 +962,7 @@ class TBlog
      * @param mixed $uid_or_name  要获取的 UID或微博昵称
      * @return array
      */
-    function followers($uid_or_screen_name , $cursor = false)
-    {
+    function followers($uid_or_screen_name, $cursor = false) {
         return $this->request_with_uid('http://api.t.163.com/statuses/followers.json', $uid_or_screen_name, false, false, $cursor);
     }
 
@@ -1026,13 +973,11 @@ class TBlog
      * @param mixed $uid_or_name 要关注的用户UID或个性网址
      * @return array
      */
-    function follow($uid_or_screen_name)
-    {
+    function follow($uid_or_screen_name) {
         return $this->request_with_uid('http://api.t.163.com/friendships/create.json', $uid_or_screen_name, false, false, false, true);
     }
 
-    function create($uid_or_screen_name)
-    {
+    function create($uid_or_screen_name) {
         return $this->request_with_uid('http://api.t.163.com/friendships/create.json', $uid_or_screen_name, false, false, false, true);
     }
 
@@ -1043,13 +988,11 @@ class TBlog
      * @param mixed $uid_or_name 要取消关注的用户UID或个性网址
      * @return array
      */
-    function unfollow($uid_or_screen_name)
-    {
+    function unfollow($uid_or_screen_name) {
         return $this->request_with_uid('http://api.t.163.com/friendships/destroy.json', $uid_or_screen_name, false, false, false, true);
     }
 
-    function destroy_friend($uid_or_screen_name)
-    {
+    function destroy_friend($uid_or_screen_name) {
         return $this->request_with_uid('http://api.t.163.com/friendships/destroy.json', $uid_or_screen_name, false, false, false, true);
     }
 
@@ -1060,18 +1003,16 @@ class TBlog
      * @param mixed $uid_or_name 要判断的用户UID
      * @return array
      */
-    function is_followed($s_id_or_screen_name, $t_id_or_screen_name=false)
-    {
+    function is_followed($s_id_or_screen_name, $t_id_or_screen_name=false) {
         $param = array();
 
-        if(is_numeric($s_id_or_screen_name))
+        if (is_numeric($s_id_or_screen_name))
             $param['source_id'] = $s_id_or_screen_name;
         else
             $param['source_screen_name'] = $s_id_or_screen_name;
 
-        if($t_id_or_screen_name)
-        {
-            if(is_numeric($t_id_or_screen_name))
+        if ($t_id_or_screen_name) {
+            if (is_numeric($t_id_or_screen_name))
                 $param['target_id'] = $t_id_or_screen_name;
             else
                 $param['target_screen_name'] = $t_id_or_screen_name;
@@ -1079,85 +1020,93 @@ class TBlog
         return $this->oauth->get('http://api.t.163.com/friendships/show.json', $param);
     }
 
-    function top_hot($type, $size=50)
-    {
-        switch ($type)
-        {
+    function top_hot($type, $size=50) {
+        switch ($type) {
             case "1":
             case "oneHour":
-                $lx="oneHour";
+                $lx = "oneHour";
                 break;
             case "2":
             case "sixHours":
-                $lx="sixHours";
+                $lx = "sixHours";
                 break;
             case "3":
             case "oneDay":
-                $lx="oneDay";
+                $lx = "oneDay";
                 break;
             case "4":
             case "oneWeek":
-                $lx="oneWeek";
+                $lx = "oneWeek";
                 break;
             default:
-                $lx=="oneHour";
+                $lx == "oneHour";
                 break;
         }
 
-        return $this->oauth->get('http://api.t.163.com/statuses/topRetweets/'.$lx.'.json?size='.$size);
+        return $this->oauth->get('http://api.t.163.com/statuses/topRetweets/' . $lx . '.json?size=' . $size);
     }
 
     /**
-    * 用户发表微博列表
-    *
-    * @access public
-    * @param int $count 每次返回的最大记录数，最多返回200条，默认30
-    * @param mixed $uid_or_name 指定用户UID或微博昵称
-    * @return array
-    */
-    function user_timeline_uid($user_id, $count = 30, $since_id = false, $max_id = false, $trim_user = false)
-    {
+     * 用户发表微博列表
+     *
+     * @access public
+     * @param int $count 每次返回的最大记录数，最多返回200条，默认30
+     * @param mixed $uid_or_name 指定用户UID或微博昵称
+     * @return array
+     */
+    function user_timeline_uid($user_id, $count = 30, $since_id = false, $max_id = false, $trim_user = false) {
         $param = array();
         $param['user_id'] = $user_id;
-        if($count) $param['count'] = $count;
-        if($since_id) $param['$since_id'] = $since_id;
-        if($max_id) $param['max_id'] = $max_id;
-        if($trim_user) $param['trim_user'] = $trim_user;
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
+        if ($max_id)
+            $param['max_id'] = $max_id;
+        if ($trim_user)
+            $param['trim_user'] = $trim_user;
         $url = 'http://api.t.163.com/statuses/user_timeline.json';
-        return $this->oauth->get($url, $param );
+        return $this->oauth->get($url, $param);
     }
 
-    function user_timeline_sname($sname, $count=30, $since_id=false, $max_id=false, $trim_user=false)
-    {
+    function user_timeline_sname($sname, $count=30, $since_id=false, $max_id=false, $trim_user=false) {
         $param = array();
         $param['screen_name'] = $sname;
-        if($count) $param['count'] = $count;
-        if($since_id) $param['$since_id'] = $since_id;
-        if($max_id) $param['max_id'] = $max_id;
-        if($trim_user) $param['trim_user'] = $trim_user;
-            $url = 'http://api.t.163.com/statuses/user_timeline.json';
-        return $this->oauth->get($url , $param );
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
+        if ($max_id)
+            $param['max_id'] = $max_id;
+        if ($trim_user)
+            $param['trim_user'] = $trim_user;
+        $url = 'http://api.t.163.com/statuses/user_timeline.json';
+        return $this->oauth->get($url, $param);
     }
 
-    function user_timeline_name($name, $count=30, $since_id=false, $max_id=false, $trim_user=false)
-    {
+    function user_timeline_name($name, $count=30, $since_id=false, $max_id=false, $trim_user=false) {
         $param = array();
         $param['name'] = $name;
-        if( $count) $param['count'] = $count;
-        if( $since_id) $param['$since_id'] = $since_id;
-        if( $max_id) $param['max_id'] = $max_id;
-        if( $trim_user) $param['trim_user'] = $trim_user;
-            $url = 'http://api.t.163.com/statuses/user_timeline.json';
-        return $this->oauth->get($url , $param );
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
+        if ($max_id)
+            $param['max_id'] = $max_id;
+        if ($trim_user)
+            $param['trim_user'] = $trim_user;
+        $url = 'http://api.t.163.com/statuses/user_timeline.json';
+        return $this->oauth->get($url, $param);
     }
 
-    function retweets_of_me($count=30, $since_id=false)
-    {
+    function retweets_of_me($count=30, $since_id=false) {
         $param = array();
-        if( $count) $param['count'] = $count;
-        if( $since_id) $param['$since_id'] = $since_id;
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
         $url = 'http://api.t.163.com/statuses/retweets_of_me.json';
-        return $this->oauth->get($url , $param );
+        return $this->oauth->get($url, $param);
     }
 
     /**
@@ -1167,11 +1116,12 @@ class TBlog
      * @param int $count 每次返回的最大记录数，最多返回200条，默认30
      * @return array
      */
-    function list_dm($count = 30, $since_id=false)
-    {
+    function list_dm($count = 30, $since_id=false) {
         $param = array();
-        if($count) $param['count'] = $count;
-        if($since_id) $param['$since_id'] = $since_id;
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
         return $this->oauth->get('http://api.t.163.com/direct_messages.json', $param);
     }
 
@@ -1182,11 +1132,12 @@ class TBlog
      * @param int $count 每次返回的最大记录数，最多返回200条，默认30
      * @return array
      */
-    function list_dm_sent($count=30, $since_id=false)
-    {
+    function list_dm_sent($count=30, $since_id=false) {
         $param = array();
-        if( $count) $param['count'] = $count;
-        if( $since_id) $param['$since_id'] = $since_id;
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
         return $this->oauth->get('http://api.t.163.com/direct_messages/sent.json', $param);
     }
 
@@ -1198,8 +1149,7 @@ class TBlog
      * @param mixed $text 要发生的消息内容，文本大小必须小于300个汉字
      * @return array
      */
-    function send_dm($name , $text)
-    {
+    function send_dm($name, $text) {
         $param = array();
         $param['text'] = $text;
         $param['name'] = $name;
@@ -1214,9 +1164,8 @@ class TBlog
      * @param mixed $did 要删除的私信主键ID
      * @return array
      */
-    function delete_dm($did)
-    {
-        return $this->oauth->post('http://api.t.163.com/direct_messages/destroy/'.$did.'.json');
+    function delete_dm($did) {
+        return $this->oauth->post('http://api.t.163.com/direct_messages/destroy/' . $did . '.json');
     }
 
     /**
@@ -1226,9 +1175,8 @@ class TBlog
      * @param mixed $sid 转发的微博ID
      * @return array
      */
-    function retweet($sid)
-    {
-        return $this->oauth->post('http://api.t.163.com/statuses/retweet/'.$sid.'.json');
+    function retweet($sid) {
+        return $this->oauth->post('http://api.t.163.com/statuses/retweet/' . $sid . '.json');
     }
 
     /**
@@ -1240,12 +1188,12 @@ class TBlog
      * @param bool $cid 要评论的评论id
      * @return array
      */
-    function send_comment($sid, $text, $cid=false)
-    {
+    function send_comment($sid, $text, $cid=false) {
         $param = array();
         $param['id'] = $sid;
         $param['comment'] = $text;
-        if( $cid ) $param['cid '] = $cid;
+        if ($cid)
+            $param['cid '] = $cid;
 
         return $this->oauth->post('http://api.t.163.com/statuses/comment.json', $param);
     }
@@ -1258,8 +1206,7 @@ class TBlog
      * @param int $count 每次返回的最大记录数，最多返回200条，默认20
      * @return array
      */
-    function comments_by_me($page=1, $count=20)
-    {
+    function comments_by_me($page=1, $count=20) {
         return $this->request_with_pager('http://api.t.163.com/statuses/comments_by_me.json', $page, $count);
     }
 
@@ -1271,8 +1218,7 @@ class TBlog
      * @param int $count 每次返回的最大记录数，最多返回200条，默认20
      * @return array
      */
-    function comments_timeline($page=1, $count=20)
-    {
+    function comments_timeline($page=1, $count=20) {
         return $this->request_with_pager('http://api.t.163.com/statuses/comments_timeline.json', $page, $count);
     }
 
@@ -1285,14 +1231,17 @@ class TBlog
      * @param int $count 每次返回的最大记录数，最多返回200条，默认20
      * @return array
      */
-    function get_comments_by_sid($sid, $count=30, $since_id=false, $max_id=false, $trim_user=false)
-    {
+    function get_comments_by_sid($sid, $count=30, $since_id=false, $max_id=false, $trim_user=false) {
         $param = array();
         $param['id'] = $sid;
-        if( $count) $param['count'] = $count;
-        if( $since_id) $param['$since_id'] = $since_id;
-        if( $max_id) $param['max_id'] = $max_id;
-        if( $trim_user) $param['trim_user'] = $trim_user;
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['$since_id'] = $since_id;
+        if ($max_id)
+            $param['max_id'] = $max_id;
+        if ($trim_user)
+            $param['trim_user'] = $trim_user;
 
         return $this->oauth->get('http://api.t.163.com/statuses/comments.json', $param);
     }
@@ -1304,8 +1253,7 @@ class TBlog
      * @param mixed $sids 微博ID号列表，用逗号隔开
      * @return array
      */
-    function get_count_info_by_ids($sids)
-    {
+    function get_count_info_by_ids($sids) {
         $param = array();
         $param['ids'] = $sids;
         return $this->oauth->get('http://api.t.163.com/statuses/counts.json', $param);
@@ -1320,8 +1268,7 @@ class TBlog
      * @param mixed $cid 评论id
      * @return array
      */
-    function reply($sid, $text, $cid)
-    {
+    function reply($sid, $text, $cid) {
         $param = array();
         $param['id'] = $sid;
         $param['comment'] = $text;
@@ -1336,13 +1283,14 @@ class TBlog
      * @param bool $page 返回结果的页序号
      * @return array
      */
-    function get_favorites($id_or_screen_name, $count=30, $since_id=false)
-    {
+    function get_favorites($id_or_screen_name, $count=30, $since_id=false) {
         $param = array();
-        if($count) $param['count'] = $count;
-        if($since_id) $param['since_id'] = $since_id;
+        if ($count)
+            $param['count'] = $count;
+        if ($since_id)
+            $param['since_id'] = $since_id;
         $param['id'] = $id_or_screen_name;
-        return $this->oauth->get('http://api.t.163.com/favorites/'.$id_or_screen_name.'.json', $param);
+        return $this->oauth->get('http://api.t.163.com/favorites/' . $id_or_screen_name . '.json', $param);
     }
 
     /**
@@ -1352,9 +1300,8 @@ class TBlog
      * @param mixed $sid 收藏的微博id
      * @return array
      */
-    function add_to_favorites($sid)
-    {
-        return $this->oauth->post('http://api.t.163.com/favorites/create/'.$sid.'.json');
+    function add_to_favorites($sid) {
+        return $this->oauth->post('http://api.t.163.com/favorites/create/' . $sid . '.json');
     }
 
     /**
@@ -1364,132 +1311,142 @@ class TBlog
      * @param mixed $sid 要删除的收藏微博信息ID
      * @return array
      */
-    function remove_from_favorites($sid)
-    {
-        return $this->oauth->post('http://api.t.163.com/favorites/destroy/'.$sid.'.json');
+    function remove_from_favorites($sid) {
+        return $this->oauth->post('http://api.t.163.com/favorites/destroy/' . $sid . '.json');
     }
 
-    function verify_credentials()
-    {
+    function verify_credentials() {
         return $this->oauth->get('http://api.t.163.com/account/verify_credentials.json');
     }
 
-    function update_avatar($pic_path)
-    {
+    function update_avatar($pic_path) {
         $param = array();
-        $param['image'] = "@".$pic_path;
-        return $this->oauth->post('http://api.t.163.com/account/update_profile_image.json', $param , true);
+        $param['image'] = "@" . $pic_path;
+        return $this->oauth->post('http://api.t.163.com/account/update_profile_image.json', $param, true);
     }
 
     /**
      * @ignore
      */
-    protected function request_with_pager($url, $page=false, $count=false)
-    {
+    protected function request_with_pager($url, $page=false, $count=false) {
         $param = array();
-        if( $page ) $param['page'] = $page;
-        if( $count ) $param['count'] = $count;
+        if ($page)
+            $param['page'] = $page;
+        if ($count)
+            $param['count'] = $count;
 
         return $this->oauth->get($url, $param);
     }
 
-    protected function request_163($url, $count=false, $since=false, $max=false, $trim=false)
-    {
+    protected function request_163($url, $count=false, $since=false, $max=false, $trim=false) {
         $param = array();
-        if($count) $param['count'] = $count;
-        if($since) $param['$since_id'] = $since;
-        if($max) $param['max_id'] = $max;
-        if($trim) $param['trim_user'] = $trim;
+        if ($count)
+            $param['count'] = $count;
+        if ($since)
+            $param['$since_id'] = $since;
+        if ($max)
+            $param['max_id'] = $max;
+        if ($trim)
+            $param['trim_user'] = $trim;
 
-        return $this->oauth->get($url , $param);
+        return $this->oauth->get($url, $param);
     }
 
     /**
      * @ignore
      */
-    protected function request_with_uid($url, $uid_or_name, $page=false, $count=false, $cursor=false, $post=false)
-    {
+    protected function request_with_uid($url, $uid_or_name, $page=false, $count=false, $cursor=false, $post=false) {
         $param = array();
-        if($page) $param['page'] = $page;
-        if($count) $param['count'] = $count;
-        if($cursor)$param['cursor'] = $cursor;
+        if ($page)
+            $param['page'] = $page;
+        if ($count)
+            $param['count'] = $count;
+        if ($cursor)
+            $param['cursor'] = $cursor;
 
-        if($post) $method = 'post';
-        else $method = 'get';
+        if ($post)
+            $method = 'post';
+        else
+            $method = 'get';
 
-        if(is_numeric($uid_or_name))
-        {
+        if (is_numeric($uid_or_name)) {
             $param['user_id'] = $uid_or_name;
             return $this->oauth->$method($url, $param);
-        }
-        elseif($uid_or_name !== null)
-        {
+        } elseif ($uid_or_name !== null) {
             $param['screen_name'] = $uid_or_name;
             return $this->oauth->$method($url, $param);
-        }
-        else
-        {
+        } else {
             return $this->oauth->$method($url, $param);
         }
     }
+
 }
 
-class ONAuth
-{
+class ONAuth {
+
     /**
      * Contains the last HTTP status code returned.
      *
      * @ignore
      */
     public $http_code;
+
     /**
      * Contains the last API call.
      *
      * @ignore
      */
     public $url;
+
     /**
      * Set up the API root URL.
      *
      * @ignore
      */
     public $host = "http://api.t.163.com/";
+
     /**
      * Set timeout default.
      *
      * @ignore
      */
     public $timeout = 30;
+
     /**
      * Set connect timeout.
      *
      * @ignore
      */
     public $connecttimeout = 30;
+
     /**
      * Verify SSL Cert.
      *
      * @ignore
      */
     public $ssl_verifypeer = false;
+
     /**
      * Respons format.
      *
      * @ignore
      */
     public $format = 'json';
+
     /**
      * Decode returned json data.
      *
      * @ignore
      */
     public $decode_json = true;
+
     /**
      * Contains the last HTTP headers returned.
      *
      * @ignore
      */
     public $http_info;
+
     /**
      * Set the useragnet.
      *
@@ -1500,44 +1457,59 @@ class ONAuth
     /**
      * Set API URLS
      */
+
     /**
      * @ignore
      */
-    function accessTokenURL() { return 'http://api.t.163.com/oauth/access_token'; }
+    function accessTokenURL() {
+        return 'http://api.t.163.com/oauth/access_token';
+    }
+
     /**
      * @ignore
      */
-    function authenticateURL() { return 'http://api.t.163.com/oauth/authenticate'; }
+    function authenticateURL() {
+        return 'http://api.t.163.com/oauth/authenticate';
+    }
+
     /**
      * @ignore
      */
-    function authorizeURL() { return 'http://api.t.163.com/oauth/authorize'; }
+    function authorizeURL() {
+        return 'http://api.t.163.com/oauth/authorize';
+    }
+
     /**
      * @ignore
      */
-    function requestTokenURL() { return 'http://api.t.163.com/oauth/request_token'; }
+    function requestTokenURL() {
+        return 'http://api.t.163.com/oauth/request_token';
+    }
 
     /**
      * Debug helpers
      */
-    /**
-     * @ignore
-     */
-    function lastStatusCode() { return $this->http_status; }
-    /**
-     * @ignore
-     */
-    function lastAPICall() { return $this->last_api_call; }
 
-    function __construct($consumer_key, $consumer_secret, $oauth_token = null, $oauth_token_secret = null)
-    {
+    /**
+     * @ignore
+     */
+    function lastStatusCode() {
+        return $this->http_status;
+    }
+
+    /**
+     * @ignore
+     */
+    function lastAPICall() {
+        return $this->last_api_call;
+    }
+
+    function __construct($consumer_key, $consumer_secret, $oauth_token = null, $oauth_token_secret = null) {
         $this->sha1_method = new ONAuthSignatureMethod_HMAC_SHA1();
         $this->consumer = new ONAuthConsumer($consumer_key, $consumer_secret);
-        if (!empty($oauth_token) && !empty($oauth_token_secret))
-        {
+        if (!empty($oauth_token) && !empty($oauth_token_secret)) {
             $this->token = new ONAuthConsumer($oauth_token, $oauth_token_secret);
-        }else
-        {
+        } else {
             $this->token = null;
         }
     }
@@ -1547,8 +1519,7 @@ class ONAuth
      *
      * @return array a key/value array containing oauth_token and oauth_token_secret
      */
-    function getRequestToken()
-    {
+    function getRequestToken() {
         $parameters = array();
         $request = $this->oAuthRequest($this->requestTokenURL(), 'GET', $parameters);
         $token = ONAuthUtil::parse_parameters($request);
@@ -1561,19 +1532,14 @@ class ONAuth
      *
      * @return string
      */
-    function getAuthorizeURL($token, $url=null)
-    {
-        if (is_array($token))
-        {
+    function getAuthorizeURL($token, $url=null) {
+        if (is_array($token)) {
             $token = $token['oauth_token'];
         }
-        if (empty($url))
-        {
+        if (empty($url)) {
             return $this->authorizeURL() . "?oauth_token={$token}";
-        }
-        else
-        {
-            return $this->authenticateURL() . "?oauth_token={$token}&oauth_callback=". urlencode($url);
+        } else {
+            return $this->authenticateURL() . "?oauth_token={$token}&oauth_callback=" . urlencode($url);
         }
     }
 
@@ -1584,11 +1550,9 @@ class ONAuth
      * @return array array("oauth_token" => the access token,
      *                "oauth_token_secret" => the access secret)
      */
-    function getAccessToken($oauth_verifier=false, $oauth_token=false)
-    {
+    function getAccessToken($oauth_verifier=false, $oauth_token=false) {
         $parameters = array();
-        if (!empty($oauth_verifier))
-        {
+        if (!empty($oauth_verifier)) {
             $parameters['oauth_verifier'] = $oauth_verifier;
         }
 
@@ -1603,11 +1567,9 @@ class ONAuth
      *
      * @return mixed
      */
-    function get($url, $parameters=array())
-    {
+    function get($url, $parameters=array()) {
         $response = $this->oAuthRequest($url, 'GET', $parameters);
-        if ($this->format === 'json' && $this->decode_json)
-        {
+        if ($this->format === 'json' && $this->decode_json) {
             return json_decode($response, true);
         }
         return $response;
@@ -1618,11 +1580,9 @@ class ONAuth
      *
      * @return mixed
      */
-    function post($url, $parameters=array(), $multi = false)
-    {
-        $response = $this->oAuthRequest($url, 'POST', $parameters , $multi);
-        if ($this->format === 'json' && $this->decode_json)
-        {
+    function post($url, $parameters=array(), $multi = false) {
+        $response = $this->oAuthRequest($url, 'POST', $parameters, $multi);
+        if ($this->format === 'json' && $this->decode_json) {
             return json_decode($response, true);
         }
         return $response;
@@ -1633,11 +1593,9 @@ class ONAuth
      *
      * @return mixed
      */
-    function delete($url, $parameters = array())
-    {
+    function delete($url, $parameters = array()) {
         $response = $this->oAuthRequest($url, 'DELETE', $parameters);
-        if ($this->format === 'json' && $this->decode_json)
-        {
+        if ($this->format === 'json' && $this->decode_json) {
             return json_decode($response, true);
         }
         return $response;
@@ -1648,21 +1606,18 @@ class ONAuth
      *
      * @return string
      */
-    function oAuthRequest($url, $method, $parameters, $multi=false)
-    {
-        if (strrpos($url, 'http://') !== 0 && strrpos($url, 'http://') !== 0)
-        {
+    function oAuthRequest($url, $method, $parameters, $multi=false) {
+        if (strrpos($url, 'http://') !== 0 && strrpos($url, 'http://') !== 0) {
             $url = "{$this->host}{$url}.{$this->format}";
         }
 
         $request = ONAuthRequest::from_consumer_and_token($this->consumer, $this->token, $method, $url, $parameters);
         $request->sign_request($this->sha1_method, $this->consumer, $this->token);
-        switch ($method)
-        {
+        switch ($method) {
             case 'GET':
                 return $this->http($request->to_url(), 'GET');
             default:
-                return $this->http($request->get_normalized_http_url(), $method, $request->to_postdata($multi) , $multi,$request->to_header() );
+                return $this->http($request->get_normalized_http_url(), $method, $request->to_postdata($multi), $multi, $request->to_header());
         }
     }
 
@@ -1671,8 +1626,7 @@ class ONAuth
      *
      * @return string API results
      */
-    function http($url, $method, $postfields=null, $multi=false, $headermulti = "")
-    {
+    function http($url, $method, $postfields=null, $multi=false, $headermulti = "") {
         $this->http_info = array();
         $ci = curl_init();
         /* Curl settings */
@@ -1684,30 +1638,27 @@ class ONAuth
         curl_setopt($ci, CURLOPT_HEADERFUNCTION, array($this, 'getHeader'));
         curl_setopt($ci, CURLOPT_HEADER, false);
 
-        switch ($method)
-        {
+        switch ($method) {
             case 'POST':
                 curl_setopt($ci, CURLOPT_POST, true);
-                if (!empty($postfields))
-                {
+                if (!empty($postfields)) {
                     curl_setopt($ci, CURLOPT_POSTFIELDS, $postfields);
                 }
                 break;
             case 'DELETE':
                 curl_setopt($ci, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                if (!empty($postfields))
-                {
+                if (!empty($postfields)) {
                     $url = "{$url}?{$postfields}";
                 }
             default:
                 break;
         }
 
-        $header_array=array();
-        if($multi)
-            $header_array = array("Content-Type: multipart/form-data; boundary=" . ONAuthUtil::$boundary , "Expect: ");
+        $header_array = array();
+        if ($multi)
+            $header_array = array("Content-Type: multipart/form-data; boundary=" . ONAuthUtil::$boundary, "Expect: ");
 
-        array_push($header_array,$headermulti);
+        array_push($header_array, $headermulti);
 
         curl_setopt($ci, CURLOPT_HTTPHEADER, $header_array);
         curl_setopt($ci, CURLINFO_HEADER_OUT, true);
@@ -1718,7 +1669,7 @@ class ONAuth
         $this->http_info = array_merge($this->http_info, curl_getinfo($ci));
         $this->url = $url;
 
-        curl_close ($ci);
+        curl_close($ci);
         return $response;
     }
 
@@ -1727,11 +1678,9 @@ class ONAuth
      *
      * @return int
      */
-    function getHeader($ch, $header)
-    {
+    function getHeader($ch, $header) {
         $i = strpos($header, ':');
-        if (!empty($i))
-        {
+        if (!empty($i)) {
             $key = str_replace('-', '_', strtolower(substr($header, 0, $i)));
             $value = trim(substr($header, $i + 2));
             $this->http_header[$key] = $value;
@@ -1739,25 +1688,23 @@ class ONAuth
         return strlen($header);
     }
 
-	 /**
+    /**
      *  store access token
      */
-    function storeAccessToken($token)
-    {
+    function storeAccessToken($token) {
         #TODO
     }
 
-	function loadAccessToken($uid)
-    {
+    function loadAccessToken($uid) {
         $i = strpos($header, ':');
-        if (!empty($i))
-        {
+        if (!empty($i)) {
             $key = str_replace('-', '_', strtolower(substr($header, 0, $i)));
             $value = trim(substr($header, $i + 2));
             $this->http_header[$key] = $value;
         }
         return strlen($header);
     }
+
 }
 
 ?>

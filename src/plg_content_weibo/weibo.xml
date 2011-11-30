@@ -13,6 +13,8 @@
         <filename plugin="weibo">weibo.sina.php</filename>
         <filename plugin="weibo">weibo.tencent.php</filename>
         <filename plugin="weibo">weibo.163.php</filename>
+        <filename plugin="weibo">weibo.twitter.php</filename>
+        <filename plugin="weibo">weibolib.php</filename>
     </files>
     <languages>
         <language tag="zh-CN">zh-CN.plg_content_weibo.sys.ini</language>
@@ -34,6 +36,11 @@
             <option value="1">Yes</option>
         </param>
         <param name="spacer3" type="spacer" default="NETEASE_AUTH" />
+        <param name="twitterenabled" type="radio" default="1" label="Enable Twitter Weibo" description="PARAMENABLEDTWITTER">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </param>
+        <param name="spacer4" type="spacer" default="TWITTER_AUTH" />
         <param name="catid" type="category" 
             label="Category" description="PARAMCATEGORY" />
         <param name="picsend" type="radio" default="1" label="Enable Image" description="PARAMSENDPIC">
@@ -79,6 +86,15 @@
                     <option value="1">JYes</option>
                 </field>
                 <field type="spacer" name="spacer3" label="NETEASE_AUTH" />
+                <field name="twitterenabled" type="radio"
+					default="1"
+					description="PARAMENABLEDTWITTER"
+					label="Enable Twitter Weibo"
+				>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
+                <field type="spacer" name="spacer4" label="TWITTER_AUTH" />
                 <field name="catid" type="category" extension="com_content" label="Category" description="PARAMCATEGORY" />
                 <field name="weibotype" type="list"
 					default="custom"

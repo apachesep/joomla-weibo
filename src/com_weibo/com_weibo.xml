@@ -20,6 +20,7 @@
         <filename>weibo.tencent.php</filename>
         <filename>weibo.163.php</filename>
         <filename>weibo.sina.php</filename>
+        <filename>weibo.twitter.php</filename>
         <folder>views</folder>
         <folder>images</folder>
     </files>
@@ -31,6 +32,7 @@
             <filename>weibo.tencent.php</filename>
             <filename>weibo.163.php</filename>
             <filename>weibo.sina.php</filename>
+            <filename>weibo.twitter.php</filename>
             <filename>index.html</filename>
             <filename>mod_weibologin.zip</filename>
             <filename>plg_authentication_weibo.zip</filename>
