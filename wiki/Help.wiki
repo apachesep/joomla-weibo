@@ -6,13 +6,19 @@
 * Joomla 1.7下的使用说明
   ** [InstallHelp 安装说明]
   ** [PostWeibo 同步发表微博的使用说明]
-  ** [WeiboLoginHelp 使用新浪、腾讯、网易的帐号登录Joomla]
+  ** [WeiboLoginHelp 使用微博的帐号登录Joomla]
 
 * Joomla 1.5下的使用说明
   ** [InstallHelp15 安装说明]
   ** [PostWeibo15 同步发表微博的使用说明]
-  ** [WeiboLoginHelp15 使用新浪、腾讯、网易的帐号登录Joomla]
+  ** [WeiboLoginHelp15 使用微博的帐号登录Joomla]
 
 * [FAQ 常见问题]
 
+* 支持的微博功能列表
 
+|| *微博* || *登录功能* || *同步发表* || *同步发表时支持图片* || 
+|| 新浪 || 是 || 是 || 是 ||
+|| 腾讯 || 是 || 是 || 是 ||
+|| 网易 || 是 || 是 || 是 ||
+|| Twitter || 是  || 是 || 否 ||
