@@ -1,11 +1,10 @@
-#summary 本文介绍如何让joomla1.7系统能够使用新浪、腾讯、网易的帐号进行登录。
+#summary 本文介绍如何让joomla1.7系统能够使用微博的帐号进行登录。
 
 <wiki:toc max_depth="2" />
 
 = 简介 =
 
-本文介绍如何使用Joomla的微博插件，让joomla系统能够使用
-新浪、腾讯、网易的帐号进行登录。
+本文介绍如何使用Joomla的微博插件，让joomla系统能够使用微博的帐号进行登录。
 
 本文以标准的Joomla页面及缺省的安装示范数据作为例子，每个由Joomla构筑的网站多少会有所不同，但是如果您仔细阅读了本文。相信一定能够在您的网站中配置好通过本插件，使用微博登录Joomla的。
 
@@ -87,4 +86,3 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/17/13.png
 当您要把这个用户设置成黑名单时，请进入“管理-插件”，选择“认证-微博”，以这个用户ID填入黑名单中，多个名单请你半角逗号分隔
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/17/14.png
-
