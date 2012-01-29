@@ -20,7 +20,7 @@
         <language tag="zh-CN">zh-CN.plg_content_weibo.sys.ini</language>
         <language tag="zh-CN">zh-CN.plg_content_weibo.ini</language>
     </languages>
-<params>
+    <params>
         <param name="sinaenabled" type="radio" default="1" label="Enable Sina Weibo" description="PARAMENABLEDSINA">
             <option value="0">No</option>
             <option value="1">Yes</option>
@@ -54,7 +54,9 @@
             <option value="custom">Custom</option>
         </param>
         <param name="customstring" type="text" size="30" default="发表了题为《%T》的博文" label="customstring" description="PARAMCUSTOMSTRING">
-        </param>  
+        </param> 
+        <param name="customoption" type="textarea" default="" rows="3" cols="22" label="customoption" description="PARAMCUSTOMOPTION" >
+        </param>
     </params>
     <config>
         <fields name="params">
@@ -110,7 +112,11 @@
 					label="customstring"
 					description="PARAMCUSTOMSTRING" />
             </fieldset>
-
+            <fieldset name="advanced">
+                <field name="customoption"  type="textarea" default="" rows="3" cols="22" 
+					label="customoption"
+					description="PARAMCUSTOMOPTION" />
+            </fieldset>
         </fields>
     </config>
 </install>

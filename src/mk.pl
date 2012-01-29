@@ -9,7 +9,7 @@ use File::Path qw(make_path remove_tree);
 use File::Copy;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 
-my $version = '0.8.0'; #版本号
+my $version = '0.8.1'; #版本号
 
 my $output = 'output'; #输出目录
 

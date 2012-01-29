@@ -105,53 +105,67 @@ function getWeiboText($row, $P, &$weibocontent) {
  */
 function sendSinaWeibo($weibocontent, $P) {
 
-    // 如果没有新浪的授权，直接返回
-    if (!$P['sinalastkey']) {
-        return;
+    if (!ifEnabled('sina', $P)) {
+        return false;
     }
-    $c = new WeiboClient(WB_AKEY, WB_SKEY, $P['sinalastkey']['oauth_token'], $P['sinalastkey']['oauth_token_secret']);
 
-    // 如果有图片，上传图片，发表有图片的微博
-    if ($weibocontent['imgurl']) {
-        $rtn1 = $c->upload($weibocontent['text'], $weibocontent['imgurl']);
-    } else {
-        // 发表没有图片的微博
-        $rtn = $c->update($weibocontent['text']);
+    try {
+        $c = new WeiboClient(WB_AKEY, WB_SKEY, $P['sinalastkey']['oauth_token'], $P['sinalastkey']['oauth_token_secret']);
+
+        // 如果有图片，上传图片，发表有图片的微博
+        if ($weibocontent['imgurl']) {
+            $rtninfo = $c->upload($weibocontent['text'], $weibocontent['imgurl']);
+        } else {
+            // 发表没有图片的微博
+            $rtninfo = $c->update($weibocontent['text']);
+        }
+    } catch (Exception $e) {
+        return false;
     }
+    if ($rtninfo['error_code'])
+        return false;
+    return ("type=sina:id={$rtninfo['id']}");
 }
 
 /**
  * 发送腾讯微博
  */
 function sendTencentWeibo($weibocontent, $P) {
-    // 如果没有腾讯的授权，直接返回
-    if (!$P['tencentlastkey']) {
-        return;
+
+    if (!ifEnabled('tencent', $P)) {
+        return false;
     }
 
     // 准备微博对象
-    $c = new MBApiClient(MB_AKEY, MB_SKEY, $P['tencentlastkey']['oauth_token'], $P['tencentlastkey']['oauth_token_secret']);
+    try {
+        $c = new MBApiClient(MB_AKEY, MB_SKEY, $P['tencentlastkey']['oauth_token'], $P['tencentlastkey']['oauth_token_secret']);
 
-    // 如果有图片，上传图片，发表有图片的微博
-    if ($weibocontent['imgfile']) {
-        $p = array(
-            'c' => $weibocontent['text'],
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'j' => '',
-            'w' => '',
-            'p' => array(null, 'pic from joomla', $weibocontent['imgfile']),
-            'type' => 0
-        );
-    } else {
-        // 发表没有图片的微博
-        $p = array(
-            'c' => $weibocontent['text'],
-            'ip' => $_SERVER['REMOTE_ADDR'],
-            'j' => '',
-            'w' => ''
-        );
+        // 如果有图片，上传图片，发表有图片的微博
+        if ($weibocontent['imgfile']) {
+            $p = array(
+                'c' => $weibocontent['text'],
+                'ip' => $_SERVER['REMOTE_ADDR'],
+                'j' => '',
+                'w' => '',
+                'p' => array(null, 'pic from joomla', $weibocontent['imgfile']),
+                'type' => 0
+            );
+        } else {
+            // 发表没有图片的微博
+            $p = array(
+                'c' => $weibocontent['text'],
+                'ip' => $_SERVER['REMOTE_ADDR'],
+                'j' => '',
+                'w' => ''
+            );
+        }
+        $rtninfo = $c->postOne($p);
+    } catch (Exception $e) {
+        return false;
     }
-    $rtn = $c->postOne($p);
+    if ($rtninfo['error_code'])
+        return false;
+    return ("type=tencent:id={$rtninfo['data']['id']}");
 }
 
 /**
@@ -159,18 +173,25 @@ function sendTencentWeibo($weibocontent, $P) {
  */
 function sendNeteaseWeibo($weibocontent, $P) {
 
-    // 如果没有网易的授权，直接返回
-    if (!$P['neteaselastkey']) {
-        return;
+    if (!ifEnabled('netease', $P)) {
+        return false;
     }
-    $c = new TBlog(CONSUMER_KEY, CONSUMER_SECRET, $P['neteaselastkey']['oauth_token'], $P['neteaselastkey']['oauth_token_secret']);
-    // 如果有图片，上传图片，发表有图片的微博
-    if ($weibocontent['imgurl']) {
-        $rtn1 = $c->upload($weibocontent['text'], $weibocontent['imgurl']);
-    } else {
-        // 发表没有图片的微博
-        $rtn = $c->update($weibocontent['text']);
+
+    try {
+        $c = new TBlog(CONSUMER_KEY, CONSUMER_SECRET, $P['neteaselastkey']['oauth_token'], $P['neteaselastkey']['oauth_token_secret']);
+        // 如果有图片，上传图片，发表有图片的微博
+        if ($weibocontent['imgurl']) {
+            $rtninfo = $c->upload($weibocontent['text'], $weibocontent['imgurl']);
+        } else {
+            // 发表没有图片的微博
+            $rtninfo = $c->update($weibocontent['text']);
+        }
+    } catch (Exception $e) {
+        return false;
     }
+    if ($rtninfo['error_code'])
+        return false;
+    return ("type=netease:id={$rtninfo['id']}");
 }
 
 /**
@@ -178,9 +199,8 @@ function sendNeteaseWeibo($weibocontent, $P) {
  */
 function sendTwitterWeibo($weibocontent, $P) {
 
-    // 如果没有网易的授权，直接返回
-    if (!$P['twitterlastkey']) {
-        return;
+    if (!ifEnabled('twitter', $P)) {
+        return false;
     }
 
     $tmhOAuth = new tmhOAuth(array(
@@ -193,6 +213,59 @@ function sendTwitterWeibo($weibocontent, $P) {
     $code = $tmhOAuth->request('POST', $tmhOAuth->url('1/statuses/update'), array(
         'status' => $weibocontent['text']
             ));
+    return '';
+}
+
+// 本函数判别是否在本类微博中发表微博
+// 
+function ifEnabled($type, $P) {
+
+    // 如果没有得到本类微博的授权，不发表
+    if (!$P[$type . 'lastkey']) {
+        return false;
+    }
+
+    // 如果根本就没有设置过分类的ID,说明全部微博都要发布
+    if (!$P['catid'] && !$P['c_' . $type . '_catid'] && $P[$type . 'enabled']) {
+        return true;
+    }
+    $catid = $P['row_catid'];
+
+    // 以下进行文章的类别判断
+    $testcatids = array();
+    if ($P['c_' . $type . '_catid']) {
+        $testcatids = explode(',', $P['c_' . $type . '_catid']);
+    }
+    if ($P['catid'] && $P[$type . 'enabled'])
+        $testcatids[] = $P['catid'];
+
+    //  这里joomla1.6以上与joomla1.5有差别，
+    //  joomla1.5之下如果设置的文章的分类，则检查本文是否属于这个分类，如果不是，直接返回
+    //  joomla1.6以后，是判断是否是指定分类的子分类。
+    if (version_compare(JVERSION, '1.6.0', 'ge')) {
+        // 这部分是joomla1.6, 1.7 的程序
+        foreach ($testcatids as $testcatid) {
+            if (trim($catid) == trim($testcatid)) {
+                return true;
+            }
+            $jcats = JCategories::getInstance('Content');
+            $pcate = $jcats->get($catid)->getParent();
+            while ($pcate != null) {
+                if ($pcate->id == $testcatid) {
+                    return true;
+                }
+                $pcate = $pcate->getParent();
+            }
+        }
+    } else {
+        // 这部分是joomla1.5的程序
+        foreach ($testcatids as $testcatid) {
+            if (trim($catid) == trim($testcatid)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 /**
@@ -218,14 +291,14 @@ class plgContentWeibo extends JPlugin {
     /**
      * Joomla 1.5 发表文章自动发表微博用插件函数
      */
-    function onAfterContentSave(&$article, $isNew) {
-        return $this->onContentAfterSave(null, &$article, $isNew);
+    function onBeforeContentSave(&$article, $isNew) {
+        return $this->onContentBeforeSave(null, &$article, $isNew);
     }
 
     /**
      * Joomla 1.7 发表文章自动发表微博用插件函数
      */
-    function onContentAfterSave($context, &$row, $isNew) {
+    function onContentBeforeSave($context, &$row, $isNew) {
         global $mainframe;
 
         // 只处理新建的文章，所以如果不是新文章，直接返回
@@ -240,94 +313,78 @@ class plgContentWeibo extends JPlugin {
 
         // 参数的设置
         $P['sinaenabled'] = $this->params->get('sinaenabled', false); //是否启用新浪微博
-        if ($P['sinaenabled']) {
-            // 如果启动新浪微博，则取得数据库中存储的新浪微博授权码
-            $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='sina'";
-            $db->setQuery($sql);
-            $result = $db->loadAssoc();
-            $P['sinalastkey'] = $result;
-        }
         $P['tencentenabled'] = $this->params->get('tencentenabled', false); //是否启用腾讯微博
-        if ($P['tencentenabled']) {
-            // 如果启动腾讯微博，则取得数据库中存储的腾讯微博授权码
-            $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='tencent'";
-            $db->setQuery($sql);
-            $result = $db->loadAssoc();
-            $P['tencentlastkey'] = $result;
-        }
         $P['neteaseenabled'] = $this->params->get('neteaseenabled', false); //是否启用网易微博
-        if ($P['neteaseenabled']) {
-            // 如果启动网易微博，则取得数据库中存储的网易微博授权码
-            $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='netease'";
-            $db->setQuery($sql);
-            $result = $db->loadAssoc();
-            $P['neteaselastkey'] = $result;
-        }
-        $P['twitterenabled'] = $this->params->get('twitterenabled', false); //是否启用网易微博
-        if ($P['twitterenabled']) {
-            // 如果启动twitter，则取得数据库中存储的网易微博授权码
-            $db = & JFactory::getDBO();
-            $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='twitter'";
-            $db->setQuery($sql);
-            $result = $db->loadAssoc();
-            $P['twitterlastkey'] = $result;
-        }
+        $P['twitterenabled'] = $this->params->get('twitterenabled', false); //是否启用twitter
+        //
+        //取得数据库中存储的新浪微博授权码
+        $db = & JFactory::getDBO();
+        $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='sina'";
+        $db->setQuery($sql);
+        $result = $db->loadAssoc();
+        $P['sinalastkey'] = $result;
+        // 取得数据库中存储的腾讯微博授权码
+        $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='tencent'";
+        $db->setQuery($sql);
+        $result = $db->loadAssoc();
+        $P['tencentlastkey'] = $result;
+        // 取得数据库中存储的网易微博授权码
+        $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='netease'";
+        $db->setQuery($sql);
+        $result = $db->loadAssoc();
+        $P['neteaselastkey'] = $result;
+        // 取得数据库中存储的Twitter授权码
+        $db = & JFactory::getDBO();
+        $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='twitter'";
+        $db->setQuery($sql);
+        $result = $db->loadAssoc();
+        $P['twitterlastkey'] = $result;
+
         $P['weibotype'] = $this->params->get('weibotype', 'fulltext'); // 微博发表方式（fulltext，onlytitle，introtext或者custom）
         $P['catid'] = $this->params->get('catid'); // 所指定的分类
         $P['customstring'] = $this->params->get('customstring'); // 自定义的字符串
         $P['picsend'] = $this->params->get('picsend', true); // 将文章中的第一幅图片发布到微博上
-        // 这里与joomla1.5有差别，
-        //  joomla1.5之下如果设置的文章的分类，则检查本文是否属于这个分类，如果不是，直接返回
-        //  joomla1.6以后，是判断是否是指定分类的子分类。
-        if (version_compare(JVERSION, '1.6.0', 'ge')) {
-            // 这部分是joomla1.7的程序
-            if ($row->catid != $P['catid']) {
-                $jcats = JCategories::getInstance('Content');
-                $pcate = $jcats->get($row->catid)->getParent();
-                while ($pcate != null) {
-                    if ($pcate->id == $P['catid']) {
-                        break;
-                    }
-                    $pcate = $pcate->getParent();
-                }
-                if ($pcate == null) {
-                    return true;
-                }
-            }
-        } else {
-            // 这部分是joomla1.5的程序
-            if ($P['catid']) {
-                if ($row->catid != $P['catid']) {
-                    return true;
-                }
-            }
+        $P['customoption'] = $this->params->get('customoption', true); // 获取详细设置
+        // 这里对customoption进行分解
+        $optionlines = explode("\n", $P['customoption']);
+        foreach ($optionlines as $optionline) {
+            $temp = explode('=', $optionline);
+            $P['c_' . $temp[0]] = $temp[1];
+            // 对于某一个类型微博指定类型的话，可以用
+            //   sina_catid=23,12 这样的设置
+            // 其他的是：tencent_catid  twitter_catid  netease_catid
         }
+        $P['row_catid'] = $row->catid;
 
         // 准备微博文字和图片
         getWeiboText($row, $P, $weibocontent);
 
+        $rtntext = '';
         // 发送新浪微博
-        if ($P['sinaenabled'] && $P['sinalastkey']) {
-            sendSinaWeibo($weibocontent, $P);
-        }
+        $rtninfo = sendSinaWeibo($weibocontent, $P);
+        if ($rtninfo) {
+            $rtntext .= $rtninfo . ';';
+        };
 
         // 发送腾讯微博
-        if ($P['tencentenabled'] && $P['tencentlastkey']) {
-            sendTencentWeibo($weibocontent, $P);
-        }
+        $rtninfo = sendTencentWeibo($weibocontent, $P);
+        if ($rtninfo) {
+            $rtntext .= $rtninfo . ';';
+        };
 
         // 发送网易微博
-        if ($P['neteaseenabled'] && $P['neteaselastkey']) {
-            sendNeteaseWeibo($weibocontent, $P);
-        }
+        $rtninfo = sendNeteaseWeibo($weibocontent, $P);
+        if ($rtninfo) {
+            $rtntext .= $rtninfo . ';';
+        };
 
         // 发送网易微博
-        if ($P['twitterenabled'] && $P['twitterlastkey']) {
-            sendTwitterWeibo($weibocontent, $P);
-        }
+        $rtninfo = sendTwitterWeibo($weibocontent, $P);
+        if ($rtninfo) {
+            $rtntext .= $rtninfo;
+        };
+        if ($rtntext)
+            $row->fulltext .= "<!-- Donot delete this comment 请勿删除此句 {" . $rtntext . '} -->';
 
         return true;
     }
