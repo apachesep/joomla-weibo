@@ -42,6 +42,10 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/15.png
 
 输入帐户和密码后，点击授权。这时，页面会回到joomla的控制台，并显示认证已经通过
 
+5）高级设置
+
+对于0.8.1及以上版本，可以进行更高级的设置，详见[PostWeiboAdvanced]
+
 http://joomla-weibo.googlecode.com/svn/wiki/images/16/16.png
 
 = 发表文章并同步到微博上 =
