@@ -11,25 +11,24 @@ defined('_JEXEC') or die();
  */
 global $mainframe;
 
-if(!version_compare(JVERSION,'1.6.0','ge')) {
+if (!version_compare(JVERSION, '1.6.0', 'ge')) {
 
-jimport('joomla.application.component.model');
-jimport('joomla.installer.installer');
-jimport('joomla.installer.helper');
-jimport('joomla.filesystem.folder');
-jimport('joomla.filesystem.file');
-
+    jimport('joomla.application.component.model');
+    jimport('joomla.installer.installer');
+    jimport('joomla.installer.helper');
+    jimport('joomla.filesystem.folder');
+    jimport('joomla.filesystem.file');
 }
 
 /**
  *  安装程序
  */
 function com_install() {
-    if(version_compare(JVERSION,'1.6.0','ge')) {
-	return;
+    if (version_compare(JVERSION, '1.6.0', 'ge')) {
+        return;
     }
     $msg = array();
-    $COM_NAME='com_weibo';
+    $COM_NAME = 'com_weibo';
 
 // 从已经安装到com_weibo组件的文件中，找出zip文件
     $files = JFolder::files(JPATH_ADMINISTRATOR . DS . 'components' . DS . $COM_NAME, 'zip', true, true);
@@ -85,7 +84,11 @@ function com_install() {
     $db->setQuery($sql);
     $db->query() or die("数据库创立错误");
 
-
+    // 加上这段话是因为在%VERSION%以前的版本中，这个字段没有AUTO_INCREMEN
+    $sql = 'ALTER TABLE `#__weibo_auth` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT ';
+    $db->setQuery($sql);
+    $db->query() or die("数据库创立错误");
+    
 // 输出结果
     if (count($msg)) {
         echo '<dt>安装结果:</dt>';

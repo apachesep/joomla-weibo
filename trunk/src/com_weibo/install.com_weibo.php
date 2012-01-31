@@ -79,6 +79,10 @@ class com_weiboInstallerScript {
 
         $db->setQuery($sql);
         $db->query() or die("数据库创立错误");
+        
+        $sql = 'ALTER TABLE `#__weibo_auth` CHANGE `id` `id` INT( 11 ) NOT NULL AUTO_INCREMENT ';
+        $db->setQuery($sql);
+        $db->query() or die("数据库创立错误");
 
 
 // 输出结果
