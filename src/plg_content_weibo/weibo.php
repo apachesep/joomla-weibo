@@ -35,7 +35,7 @@ function cleanText(&$text) {
 /**
  * 准备微博文字
  */
-function getWeiboText($row, $P, &$weibocontent) {
+function getWeiboText($row, $option, &$weibocontent) {
     unset($weibocontent['text']);
     unset($weibocontent['imgfile']);
     // 取得网站的root URI
@@ -43,13 +43,13 @@ function getWeiboText($row, $P, &$weibocontent) {
     $root = $u->root();
 
     // 根据微博文字的种类
-    if ($P['weibotype'] == 'fulltext') {
+    if ($option['weibotype'] == 'fulltext') {
         //  1) 全文发表
         $weibotext = $row->introtext . '<br>' . $row->fulltext;
-    } else if ($P['weibotype'] == 'introtext') {
+    } else if ($option['weibotype'] == 'introtext') {
         //  2) 发表引文
         $weibotext = $row->introtext;
-    } else if ($P['weibotype'] == 'title') {
+    } else if ($option['weibotype'] == 'title') {
         //  3）发表标题
         $weibotext = $row->title;
     } else {
@@ -61,7 +61,7 @@ function getWeiboText($row, $P, &$weibocontent) {
         $user = JFactory::getUser();
         $username = $user->name;
 
-        $weibotext = str_replace('%T', $row->title, $P['customstring']);    // %T 替换成文章的标题
+        $weibotext = str_replace('%T', $row->title, $option['customstring']);    // %T 替换成文章的标题
         $weibotext = str_replace('%F', $row->introtext . '<br>' . $row->fulltext, $weibotext); // %F 替换成文章的全文
         $weibotext = str_replace('%I', $row->introtext, $weibotext);  // %I 替换为引言
         $weibotext = str_replace('%H', $root, $weibotext);   // %H 替换为网站网址
@@ -74,7 +74,7 @@ function getWeiboText($row, $P, &$weibocontent) {
 
     // 检查有无图片
     $imgfile = false;
-    if ($P['picsend']) {
+    if ($option['picsend']) {
         if (preg_match('/<img[^>]*src="([^"]+)"/is', $row->introtext . $row->fulltext, $matchs)) {
             if (strpos($matchs[1], 'images/') === 0) {
                 $picurl = $root . $matchs[1];
@@ -103,11 +103,19 @@ function getWeiboText($row, $P, &$weibocontent) {
 /**
  * 发送新浪微博
  */
-function sendSinaWeibo($weibocontent, $P) {
+function sendSinaWeibo($row, $P) {
 
-    if (!ifEnabled('sina', $P)) {
+    // 如果没有得到本类微博的授权，不发表
+    if (!$P['sinalastkey']) {
         return false;
     }
+    $option = $P['typeoption']['sina'];
+    if (!$option) {
+        return false;
+    }
+
+    // 准备微博文字和图片
+    getWeiboText($row, $option, $weibocontent);
 
     try {
         $c = new WeiboClient(WB_AKEY, WB_SKEY, $P['sinalastkey']['oauth_token'], $P['sinalastkey']['oauth_token_secret']);
@@ -130,11 +138,18 @@ function sendSinaWeibo($weibocontent, $P) {
 /**
  * 发送腾讯微博
  */
-function sendTencentWeibo($weibocontent, $P) {
+function sendTencentWeibo($row, $P) {
 
-    if (!ifEnabled('tencent', $P)) {
+    // 如果没有得到本类微博的授权，不发表
+    if (!$P['tencentlastkey']) {
         return false;
     }
+    $option = $P['typeoption']['tencent'];
+    if (!$option) {
+        return false;
+    }
+    // 准备微博文字和图片
+    getWeiboText($row, $option, $weibocontent);
 
     // 准备微博对象
     try {
@@ -171,11 +186,19 @@ function sendTencentWeibo($weibocontent, $P) {
 /**
  * 发送网易微博
  */
-function sendNeteaseWeibo($weibocontent, $P) {
+function sendNeteaseWeibo($row, $P) {
 
-    if (!ifEnabled('netease', $P)) {
+    // 如果没有得到本类微博的授权，不发表
+    if (!$P['neteaselastkey']) {
         return false;
     }
+    $option = $P['typeoption']['netease'];
+    if (!$option) {
+        return false;
+    }
+    
+    // 准备微博文字和图片
+    getWeiboText($row, $option, $weibocontent);
 
     try {
         $c = new TBlog(CONSUMER_KEY, CONSUMER_SECRET, $P['neteaselastkey']['oauth_token'], $P['neteaselastkey']['oauth_token_secret']);
@@ -197,11 +220,19 @@ function sendNeteaseWeibo($weibocontent, $P) {
 /**
  * 发送网易微博
  */
-function sendTwitterWeibo($weibocontent, $P) {
+function sendTwitterWeibo($row, $P) {
 
-    if (!ifEnabled('twitter', $P)) {
+    // 如果没有得到本类微博的授权，不发表
+    if (!$P['neteaselastkey']) {
         return false;
     }
+    $option = $P['typeoption']['twitter'];
+    if (!$option) {
+        return false;
+    }
+    
+    // 准备微博文字和图片
+    getWeiboText($row, $option, $weibocontent);
 
     $tmhOAuth = new tmhOAuth(array(
                 'consumer_key' => TW_AKEY,
@@ -216,53 +247,35 @@ function sendTwitterWeibo($weibocontent, $P) {
     return '';
 }
 
-// 本函数判别是否在本类微博中发表微博
-// 
-function ifEnabled($type, $P) {
+// 判别文章分类$catid是否是文章分类$testcatid
+//  如果$testcatid的值是'all'，直接返回
+//  joomla1.5之下如果设置的文章的分类，则检查本文是否属于这个分类，如果不是，直接返回
+//  joomla1.6以后， 根据$norecursive的值
+//      如果是0 判断是否是指定分类的子分类。
+//      如果是1 与1.5相同
+function inCat($catid, $testcatid, $norecursive=0) {
 
-    // 如果没有得到本类微博的授权，不发表
-    if (!$P[$type . 'lastkey']) {
-        return false;
-    }
-
-    // 如果根本就没有设置过分类的ID,说明全部微博都要发布
-    if (!$P['catid'] && !$P['c_' . $type . '_catid'] && $P[$type . 'enabled']) {
+    if ($testcatid == 'all')
         return true;
-    }
-    $catid = $P['row_catid'];
-
-    // 以下进行文章的类别判断
-    $testcatids = array();
-    if ($P['c_' . $type . '_catid']) {
-        $testcatids = explode(',', $P['c_' . $type . '_catid']);
-    }
-    if ($P['catid'] && $P[$type . 'enabled'])
-        $testcatids[] = $P['catid'];
 
     //  这里joomla1.6以上与joomla1.5有差别，
-    //  joomla1.5之下如果设置的文章的分类，则检查本文是否属于这个分类，如果不是，直接返回
-    //  joomla1.6以后，是判断是否是指定分类的子分类。
-    if (version_compare(JVERSION, '1.6.0', 'ge')) {
+    if (version_compare(JVERSION, '1.6.0', 'ge') && !$norecursive) {
         // 这部分是joomla1.6, 1.7 的程序
-        foreach ($testcatids as $testcatid) {
-            if (trim($catid) == trim($testcatid)) {
+        if (trim($catid) == trim($testcatid)) {
+            return true;
+        }
+        $jcats = JCategories::getInstance('Content');
+        $pcate = $jcats->get($catid)->getParent();
+        while ($pcate != null) {
+            if ($pcate->id == $testcatid) {
                 return true;
             }
-            $jcats = JCategories::getInstance('Content');
-            $pcate = $jcats->get($catid)->getParent();
-            while ($pcate != null) {
-                if ($pcate->id == $testcatid) {
-                    return true;
-                }
-                $pcate = $pcate->getParent();
-            }
+            $pcate = $pcate->getParent();
         }
     } else {
         // 这部分是joomla1.5的程序
-        foreach ($testcatids as $testcatid) {
-            if (trim($catid) == trim($testcatid)) {
-                return true;
-            }
+        if (trim($catid) == trim($testcatid)) {
+            return true;
         }
     }
     return false;
@@ -311,12 +324,6 @@ class plgContentWeibo extends JPlugin {
             return true;
         }
 
-        // 参数的设置
-        $P['sinaenabled'] = $this->params->get('sinaenabled', false); //是否启用新浪微博
-        $P['tencentenabled'] = $this->params->get('tencentenabled', false); //是否启用腾讯微博
-        $P['neteaseenabled'] = $this->params->get('neteaseenabled', false); //是否启用网易微博
-        $P['twitterenabled'] = $this->params->get('twitterenabled', false); //是否启用twitter
-        //
         //取得数据库中存储的新浪微博授权码
         $db = & JFactory::getDBO();
         $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='sina'";
@@ -340,46 +347,95 @@ class plgContentWeibo extends JPlugin {
         $result = $db->loadAssoc();
         $P['twitterlastkey'] = $result;
 
-        $P['weibotype'] = $this->params->get('weibotype', 'fulltext'); // 微博发表方式（fulltext，onlytitle，introtext或者custom）
-        $P['catid'] = $this->params->get('catid'); // 所指定的分类
-        $P['customstring'] = $this->params->get('customstring'); // 自定义的字符串
-        $P['picsend'] = $this->params->get('picsend', true); // 将文章中的第一幅图片发布到微博上
-        $P['customoption'] = $this->params->get('customoption', true); // 获取详细设置
-        // 这里对customoption进行分解
-        $optionlines = explode("\n", $P['customoption']);
-        foreach ($optionlines as $optionline) {
-            $temp = explode('=', $optionline);
-            $P['c_' . $temp[0]] = $temp[1];
-            // 对于某一个类型微博指定类型的话，可以用
-            //   sina_catid=23,12 这样的设置
-            // 其他的是：tencent_catid  twitter_catid  netease_catid
-        }
+        // 本微博的分类ID
         $P['row_catid'] = $row->catid;
 
-        // 准备微博文字和图片
-        getWeiboText($row, $P, $weibocontent);
+        // 参数的设置
+        $P['catoption'] = array(); // 这个是对各个分类的设定
+
+        $catp = array();
+        $catp['catid'] = $this->params->get('catid') ? $this->params->get('catid') : 'all'; // 所指定的分类
+
+        $catp['weibotype'] = $this->params->get('weibotype', 'fulltext'); // 微博发表方式（fulltext，onlytitle，introtext或者custom）
+        $P['weibotype'] = $catp['weibotype']; // 缺省时也使用这个参数
+        $catp['customstring'] = $this->params->get('customstring'); // 自定义的字符串
+        $P['customstring'] = $catp['customstring'];
+        $catp['picsend'] = $this->params->get('picsend', true); // 将文章中的第一幅图片发布到微博上
+        $P['picsend'] = $catp['picsend'];
+
+        $P['sinaenabled'] = $this->params->get('sinaenabled', false); //是否启用新浪微博
+        $catp['sina'] = $P['sinaenabled'];
+        $P['tencentenabled'] = $this->params->get('tencentenabled', false); //是否启用腾讯微博
+        $catp['tencent'] = $P['tencentenabled'];
+        $P['neteaseenabled'] = $this->params->get('neteaseenabled', false); //是否启用网易微博
+        $catp['netease'] = $P['neteaseenabled'];
+        $P['twitterenabled'] = $this->params->get('twitterenabled', false); //是否启用twitter
+        $catp['twitter'] = $P['twitterenabled'];
+        $catp['norecursive'] = 0; // 仅对1.6及以上版本有用，缺省时分类的判断是依据分类及子分类
+        $P['norecursive'] = 0;
+
+        $P['cat_option'][] = $catp;  // 加入分类设定之中
+
+        $P['customoption'] = $this->params->get('customoption', true); // 获取高级自定义设置
+        // 这里对customoption进行分解
+        $optionlines = explode("\n", $P['customoption']);
+        // 对于某一个类型微博指定类型的话，可以用
+        //  catid=23,sina=1,tencent=1,weibotype=fulltext,picsend=0,customstring=aaaa
+        foreach ($optionlines as $optionline) {
+            $temp = explode(',', $optionline);
+            $temp3 = array();
+            foreach ($temp as $temp1) {
+                $temp2 = explode('=', $temp1);
+                if ($temp2[0])
+                    $temp3[$temp2[0]] = $temp2[1] ? $temp2[1] : NULL;
+            }
+            if ($temp3['catid']) {
+                // 目前，只有含有catid设置的才被认为是有意义的设置，其他的行都忽略
+                $P['cat_option'][] = $temp3;
+            }
+        }
+
+        $P['typeoption'] = array();
+        // 对于每一个分类的设置，看看本次微博是不是属于此分类
+        foreach ($P['cat_option'] as $option) {
+            if (inCat($P['row_catid'], $option['catid'], $option['norecursive'])) {
+                // 如果属于这类
+                if ($option['sina']) {
+                    $P['typeoption']['sina'] = $option;
+                }
+                if ($option['twitter']) {
+                    $P['typeoption']['twitter'] = $option;
+                }
+                if ($option['tencent']) {
+                    $P['typeoption']['tencent'] = $option;
+                }
+                if ($option['netease']) {
+                    $P['typeoption']['netease'] = $option;
+                }
+            }
+        }
 
         $rtntext = '';
         // 发送新浪微博
-        $rtninfo = sendSinaWeibo($weibocontent, $P);
+        $rtninfo = sendSinaWeibo($row, $P);
         if ($rtninfo) {
             $rtntext .= $rtninfo . ';';
         };
 
         // 发送腾讯微博
-        $rtninfo = sendTencentWeibo($weibocontent, $P);
+        $rtninfo = sendTencentWeibo($row, $P);
         if ($rtninfo) {
             $rtntext .= $rtninfo . ';';
         };
 
         // 发送网易微博
-        $rtninfo = sendNeteaseWeibo($weibocontent, $P);
+        $rtninfo = sendNeteaseWeibo($row, $P);
         if ($rtninfo) {
             $rtntext .= $rtninfo . ';';
         };
 
         // 发送网易微博
-        $rtninfo = sendTwitterWeibo($weibocontent, $P);
+        $rtninfo = sendTwitterWeibo($row, $P);
         if ($rtninfo) {
             $rtntext .= $rtninfo;
         };
