@@ -46,6 +46,10 @@ http://joomla-weibo.googlecode.com/svn/wiki/images/15.png
 
 http://joomla-weibo.googlecode.com/svn/wiki/images/15/16.png
 
+6）高级设置
+
+对于0.8.1及以上版本，可以进行更高级的设置，详见PostWeiboAdvanced 
+
 = 发表文章并同步到微博上 =
 
 注意：本插件仅在发表新的文章的时候同时发表到微博上，修改或者删除文章对已经发表的微博没有任何影响
