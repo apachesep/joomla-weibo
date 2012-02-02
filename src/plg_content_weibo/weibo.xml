@@ -10,11 +10,6 @@
     <description>PLG_WEIBO_DESCRIPTION</description>
     <files>
         <filename plugin="weibo">weibo.php</filename>
-        <filename plugin="weibo">weibo.sina.php</filename>
-        <filename plugin="weibo">weibo.tencent.php</filename>
-        <filename plugin="weibo">weibo.163.php</filename>
-        <filename plugin="weibo">weibo.twitter.php</filename>
-        <filename plugin="weibo">weibolib.php</filename>
     </files>
     <languages>
         <language tag="zh-CN">zh-CN.plg_content_weibo.sys.ini</language>

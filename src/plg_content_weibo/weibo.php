@@ -13,8 +13,9 @@ jimport('joomla.application.component.view');
 
 define('WEIBO_LIMIT', 140); // 限制字数
 //require_once JPATH_SITE.'/components/com_content/router.php';
-require_once JPATH_SITE . '/components/com_content/helpers/route.php';
-require_once('weibolib.php');
+require_once JPATH_SITE . DS. 'components'.DS. 'com_content'.DS. 'helpers'.DS. 'route.php';
+require_once JPATH_SITE . DS . "components" . DS . "com_weibo" . DS . "weibolib.php";
+//require_once('weibolib.php');
 
 /**
  * 清理文字
