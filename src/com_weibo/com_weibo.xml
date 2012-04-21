@@ -41,6 +41,8 @@
         <languages folder="admin">
             <language tag="zh-CN">language/zh-CN/zh-CN.com_weibo.sys.ini</language>
             <language tag="zh-CN">zh-CN.com_weibo.ini</language>
+            <language tag="en-GB">language/en-GB/en-GB.com_weibo.sys.ini</language>
+            <language tag="en-GB">en-GB.com_weibo.ini</language>
         </languages>
 
     </administration>

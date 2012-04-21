@@ -14,6 +14,8 @@
     <languages>
         <language tag="zh-CN">zh-CN.plg_authentication_weibo.ini</language>
         <language tag="zh-CN">zh-CN.plg_authentication_weibo.sys.ini</language>
+        <language tag="en-GB">en-GB.plg_authentication_weibo.ini</language>
+        <language tag="en-GB">en-GB.plg_authentication_weibo.sys.ini</language>
     </languages>
     <params>
         <param name="user_blacklist" type="text" size="30" default="" label="PLG_WEIBO_FIELD_USER_BLACKLIST_LABEL" description="PLG_WEIBO_FIELD_USER_BLACKLIST_DESC" />
