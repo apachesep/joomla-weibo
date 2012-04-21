@@ -23,6 +23,8 @@
     <languages>
         <language tag="zh-CN">zh-CN.mod_weibologin.ini</language>
         <language tag="zh-CN">zh-CN.mod_weibologin.sys.ini</language>
+        <language tag="en-GB">en-GB.mod_weibologin.ini</language>
+        <language tag="en-GB">en-GB.mod_weibologin.sys.ini</language>
     </languages>
     <config>
         <fields name="params">
