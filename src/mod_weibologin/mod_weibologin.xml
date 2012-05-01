@@ -134,8 +134,8 @@
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>
-        <param name="qqappid" type="text" size="10" default="" label="MOD_WEIBOLOGIN_FIELD_QQ_APPID" description="MOD_WEIBOLOGIN_FIELD_QQ_APPID_DESC" />
-        <param name="qqkey" type="text" size="33" default="" label="MOD_WEIBOLOGIN_FIELD_QQ_KEY" description="MOD_WEIBOLOGIN_FIELD_QQ_KEY_DESC" />
+        <param name="qqappid" type="text" size="10" default="" label="MOD_WEIBOLOGIN_FIELD_QQAPPID" description="MOD_WEIBOLOGIN_FIELD_QQAPPIDDESC" />
+        <param name="qqkey" type="text" size="33" default="" label="MOD_WEIBOLOGIN_FIELD_QQKEY" description="MOD_WEIBOLOGIN_FIELD_QQKEYDESC" />
         <param name="logosize" type="radio" default="0" label="MOD_WEIBOLOGIN_SIZE" description="MOD_WEIBOLOGIN_SIZE">
             <option value="0">MOD_WEIBOLOGINL_LARGE</option>
             <option value="1">MOD_WEIBOLOGINL_MID</option>
