@@ -15,14 +15,14 @@ require_once($path . DS . "components" . DS . "com_weibo" . DS . "weibolib.php")
  * 微博认证组件的控制层程序
  */
 class WeiboController extends JController {
-    
+
     /**
      *  显示或跳转至认证的连接
      * @param type $type   微博类型，参见weibolib.php的TypeCheck函数
      * @param type $ifoob  是否使用oob(twitter等，需要使用这个)
      * @return WeiboController 
      */
-    function authprelogin( $type, $ifoob = false ) {
+    function authprelogin($type, $ifoob = false) {
         $document = JFactory::getDocument();
         $viewType = $document->getType();
         $viewLayout = JRequest::getCmd('layout', 'default');
@@ -38,19 +38,19 @@ class WeiboController extends JController {
         }
 
         $view->return = JRequest::getCmd('rid');
-        
+
         $u = & JFactory::getURI();
         $p = $u->base();
-        $path = $p . '/index.php?option=com_weibo&task='.$type.'login' . '&rid=' . $view->return;
+        $path = $p . '/index.php?option=com_weibo&task=' . $type . 'login' . '&rid=' . $view->return;
         $view->weibourl = AuthUrlGet($type, $path);
-       
-        if ( $ifoob ) {
+
+        if ($ifoob) {
             $view->oobprelogin();
         } else {
             $view->weiboprelogin();
         }
-            
-        
+
+
         return $this;
     }
 
@@ -80,17 +80,31 @@ class WeiboController extends JController {
     function neteaseprelogin($cachable = false, $urlparams = false) {
         return $this->authprelogin('netease');
     }
-    
+
     /**
      *  本函数用于显示自动跳转到Twitter认证的网页
      */
     public
 
     function twitterprelogin($cachable = false, $urlparams = false) {
-        return $this->authprelogin('twitter', true );
+        return $this->authprelogin('twitter', true);
     }
-    
-    function authlogin( $type ) {
+
+    /**
+     *  本函数用于显示自动跳转到QQ认证的网页
+     */
+    public
+
+    function qqprelogin($cachable = false, $urlparams = false) {
+        $qqappid = JRequest::getCmd('qqappid');
+        $qqkey = JRequest::getCmd('qqkey');
+        $_SESSION['appid'] = $qqappid;
+        $_SESSION['appkey'] = $qqkey;
+        $_SESSION['scope'] = 'get_user_info';
+        return $this->authprelogin('qq');
+    }
+
+    function authlogin($type) {
         $zhtype = TypeCheck($type);
         $document = JFactory::getDocument();
         $viewType = $document->getType();
@@ -116,25 +130,30 @@ class WeiboController extends JController {
 
         if ($last_key) {
             // 如果认证通过，以"用户ID@xxxxxweibo" 为joomla中的用户名
-            $view->showusername = $last_key['user_id'] . '@'.$type.'weibo';
+            if ($type == 'qq') {
+                $view->showusername = $last_key['user_id'] . '@' . $type;
+            } else {
+                $view->showusername = $last_key['user_id'] . '@' . $type . 'weibo';
+            }
             $view->showpassword = base64_encode($view->showusername);
 
             // 以“用户昵称(来自某某微博)”用户昵称
-            $_SESSION['weibousername'] = $last_key['user_name'] . '(来自'.$zhtype.')';
-            if ( array_key_exists('user_email',$last_key)) {
+            $_SESSION['weibousername'] = $last_key['user_name'] . '(来自' . $zhtype . ')';
+            if (array_key_exists('user_email', $last_key)) {
                 $_SESSION['weibouseremail'] = $last_key['user_email'];
             } else {
-                unset( $_SESSION['weibouseremail'] );
+                unset($_SESSION['weibouseremail']);
             }
             $_SESSION['weibouserlogin'] = 1;
-            $view->weibologin();        
+            $view->weibologin();
         } else {
             $view->weibologinerror($type, $zhtype);
         }
 
-        
+
         return $this;
     }
+
     /**
      *  本函数是新浪认证后回调的处理
      */
@@ -145,7 +164,7 @@ class WeiboController extends JController {
     /**
      *  本函数是腾讯认证后回调的处理
      */
-    public function tencentlogin($cachable = false, $urlparams = false) {      
+    public function tencentlogin($cachable = false, $urlparams = false) {
         return $this->authlogin('tencent');
     }
 
@@ -163,4 +182,12 @@ class WeiboController extends JController {
         $_SESSION['tw_oobpin'] = JRequest::getCmd('oobpin');
         return $this->authlogin('twitter');
     }
+
+    /**
+     *  本函数是QQ认证后回调的处理
+     */
+    public function qqlogin($cachable = false, $urlparams = false) {
+        return $this->authlogin('qq');
+    }
+
 }

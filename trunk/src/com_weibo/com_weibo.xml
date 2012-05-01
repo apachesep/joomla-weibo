@@ -19,6 +19,7 @@
         <filename>controller.php</filename>
         <filename>weibo.tencent.php</filename>
         <filename>weibo.163.php</filename>
+        <filename>weibo.qq.php</filename>
         <filename>weibo.sina.php</filename>
         <filename>weibo.twitter.php</filename>
         <folder>views</folder>
