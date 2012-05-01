@@ -17,6 +17,7 @@ require_once("weibo.tencent.php");
 require_once("weibo.sina.php");
 require_once("weibo.163.php");
 require_once("weibo.twitter.php");
+require_once("weibo.qq.php");
 
 function TypeCheck($type) {
     switch ($type) {
@@ -24,6 +25,7 @@ function TypeCheck($type) {
         case 'tencent': return '腾讯微博';
         case 'netease': return '网易微博';
         case 'twitter': return 'Twitter';
+        case 'qq': return 'QQ';
         default : die('FATAL ERROR');
     }
 }

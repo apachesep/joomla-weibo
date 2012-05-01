@@ -39,6 +39,7 @@ class plgAuthenticationWeibo extends JPlugin {
             '@tencentweibo',
             '@neteaseweibo',
             '@twitterweibo',
+            '@qq',
         );
         // 本插件认为认证通过有二个条件
         //  $_SESSION['weibouserlogin']  设置成 1

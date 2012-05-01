@@ -9,18 +9,21 @@ JHtml::_('behavior.keepalive');
 <?php
 switch ($params->get('logosize')) {
     case 1:
+        $qqlogo = '<img src="components/com_weibo/images/logoqq_24.png" />';
         $sinalogo = '<img src="components/com_weibo/images/logosina_24.png" />';
         $tencentlogo = '<img src="components/com_weibo/images/logotencent_24.png" />';
         $neteaselogo = '<img src="components/com_weibo/images/logo163_24.png" />';
         $twitterlogo = '<img src="components/com_weibo/images/logotwitter_24.png" />';
         break;
     case 2:
+        $qqlogo = '<img src="components/com_weibo/images/logoqq_16.png" />';
         $sinalogo = '<img src="components/com_weibo/images/logosina_16.png" />';
         $tencentlogo = '<img src="components/com_weibo/images/logotencent_16.png" />';
         $neteaselogo = '<img src="components/com_weibo/images/logo163_16.png" />';
         $twitterlogo = '<img src="components/com_weibo/images/logotwitter_16.png" />';
         break;
     default:
+        $qqlogo = '<img src="components/com_weibo/images/logoqq_32.png" />';
         $sinalogo = '<img src="components/com_weibo/images/logosina_32.png" />';
         $tencentlogo = '<img src="components/com_weibo/images/logotencent_32.png" />';
         $neteaselogo = '<img src="components/com_weibo/images/logo163_32.png" />';
@@ -55,6 +58,14 @@ else :
     <?php if ($params->get('twitterenabled')) { ?>
         <a href=index.php?option=com_weibo&task=twitterprelogin&rid=<?php echo $return; ?>>
             <?php echo $twitterlogo; ?>
+        </a>
+    <?php } ?>
+    <?php if ($params->get('qqenabled')) { 
+          $qqappid = $params->get('qqappid');
+          $qqkey = $params->get('qqkey');
+        ?>
+        <a href=index.php?option=com_weibo&task=qqprelogin&rid=<?php echo $return; ?>&qqappid=<?php echo $qqappid; ?>&qqkey=<?php echo $qqkey; ?>>
+            <?php echo $qqlogo; ?>
         </a>
     <?php } ?>
 <?php endif; ?>

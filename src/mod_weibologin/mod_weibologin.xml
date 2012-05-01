@@ -31,10 +31,10 @@
             <fieldset name="basic">
                 <field
 					name="pretext"
-					type="textarea"
+					type="text"
 					filter="safehtml"
 					cols="30"
-					rows="5"
+					rows="1"
 					label="MOD_WEIBOLOGIN_FIELD_PRE_TEXT_LABEL"
 					description="MOD_WEIBOLOGIN_FIELD_PRE_TEXT_DESC"
                                         default="使用微博登录"
@@ -72,6 +72,34 @@
                     <option value="0">JNo</option>
                     <option value="1">JYes</option>
                 </field>
+                <field name="qqenabled" type="radio"
+					default="1"
+					description="MOD_WEIBOLOGIN_QQ"
+					label="MOD_WEIBOLOGIN_QQ"
+				>
+                    <option value="0">JNo</option>
+                    <option value="1">JYes</option>
+                </field>
+                <field
+			name="qqappid"
+					type="text"
+					filter="safehtml"
+					cols="10"
+					rows="1"
+					label="MOD_WEIBOLOGIN_FIELD_QQAPPID"
+					description="MOD_WEIBOLOGIN_FIELD_QQAPPIDDESC"
+                                        default=""
+                                        />
+                <field
+			name="qqkey"
+					type="text"
+					filter="safehtml"
+					cols="33"
+					rows="1"
+					label="MOD_WEIBOLOGIN_FIELD_QQKEY"
+					description="MOD_WEIBOLOGIN_FIELD_QQKEYDESC"
+                                        default=""
+                                        />
                 <field name="logosize" type="radio"
 					default="0"
 					description="MOD_WEIBOLOGIN_SIZE"
@@ -85,27 +113,33 @@
         </fields>
     </config>
     <params>
- <param name="pretext" type="text" size="30" default="使用微博登录" label="MOD_WEIBOLOGIN_FIELD_PRE_TEXT_LABEL" description="MOD_WEIBOLOGIN_FIELD_PRE_TEXT_DESC" />
- <param name="sinaenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_SINA" description="MOD_WEIBOLOGIN_SINA">
+        <param name="pretext" type="text" size="30" default="使用微博登录" label="MOD_WEIBOLOGIN_FIELD_PRE_TEXT_LABEL" description="MOD_WEIBOLOGIN_FIELD_PRE_TEXT_DESC" />
+        <param name="sinaenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_SINA" description="MOD_WEIBOLOGIN_SINA">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>
- <param name="tencentenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_TENCENT" description="MOD_WEIBOLOGIN_TENCENT">
+        <param name="tencentenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_TENCENT" description="MOD_WEIBOLOGIN_TENCENT">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>
- <param name="neteaseenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_NETEASE" description="MOD_WEIBOLOGIN_NETEASE">
+        <param name="neteaseenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_NETEASE" description="MOD_WEIBOLOGIN_NETEASE">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>
- <param name="twitterenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_TWITTER" description="MOD_WEIBOLOGIN_TWITTER">
+        <param name="twitterenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_TWITTER" description="MOD_WEIBOLOGIN_TWITTER">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>
- <param name="logosize" type="radio" default="0" label="MOD_WEIBOLOGIN_SIZE" description="MOD_WEIBOLOGIN_SIZE">
+        <param name="qqenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_QQ" description="MOD_WEIBOLOGIN_TWITTER">
+            <option value="0">JNo</option>
+            <option value="1">JYes</option>
+        </param>
+        <param name="qqappid" type="text" size="10" default="" label="MOD_WEIBOLOGIN_FIELD_QQ_APPID" description="MOD_WEIBOLOGIN_FIELD_QQ_APPID_DESC" />
+        <param name="qqkey" type="text" size="33" default="" label="MOD_WEIBOLOGIN_FIELD_QQ_KEY" description="MOD_WEIBOLOGIN_FIELD_QQ_KEY_DESC" />
+        <param name="logosize" type="radio" default="0" label="MOD_WEIBOLOGIN_SIZE" description="MOD_WEIBOLOGIN_SIZE">
             <option value="0">MOD_WEIBOLOGINL_LARGE</option>
-                    <option value="1">MOD_WEIBOLOGINL_MID</option>
-                    <option value="2">MOD_WEIBOLOGINL_SMALL</option>
+            <option value="1">MOD_WEIBOLOGINL_MID</option>
+            <option value="2">MOD_WEIBOLOGINL_SMALL</option>
         </param>
     </params>
 </install>
