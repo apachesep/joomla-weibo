@@ -3,7 +3,7 @@
 本插件的使用说明：
 
 
-* Joomla 1.7下的使用说明
+* Joomla 1.7/2.5 下的使用说明
   ** [InstallHelp 安装说明]
   ** [PostWeibo 同步发表微博的使用说明]
   ** [WeiboLoginHelp 使用微博的帐号登录Joomla]
