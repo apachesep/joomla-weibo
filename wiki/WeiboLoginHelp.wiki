@@ -1,4 +1,4 @@
-#summary 本文介绍如何让joomla1.7系统能够使用微博的帐号进行登录。
+#summary 本文介绍如何让joomla1.7及以上系统能够使用微博的帐号进行登录。
 
 <wiki:toc max_depth="2" />
 
