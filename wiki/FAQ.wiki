@@ -36,7 +36,7 @@ Joomla 的界面通常会显示用户ID而不是显示用户昵称，如果需�
 
 没有办法，腾讯明确说了，不给取得用户的QQ号。
 
-=== 登录时跳转到新浪/腾讯/网易认证时，希望显示的是我的网站，而不是"来自Joomla的微博插件"，如何做到？ ===
+=== 登录时跳转到新浪/腾讯/网易认证时，希望显示的是我的网站，而不是"Joomla的微博插件"，如何做到？ ===
 
 您可以先去找新浪、腾讯、网易他们审核您的网站，他们会还给你两个key，你把这两个key放在weibo.sina.php，weibo.tencent.php，weibo.163.php，weibo.twitter.php等的开头，替换掉我的key就行了。这几个文件在目录：administrator/components/com_weibo之下。（注意：如果更新了插件，Key会改回来的。）
 
