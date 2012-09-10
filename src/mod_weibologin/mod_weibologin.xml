@@ -48,6 +48,26 @@
                     <option value="0">JNo</option>
                     <option value="1">JYes</option>
                 </field>
+                <field
+			name="sinaappkey"
+					type="text"
+					filter="safehtml"
+					cols="10"
+					rows="1"
+					label="MOD_WEIBOLOGIN_FIELD_SINA_APPKEY"
+					description="MOD_WEIBOLOGIN_FIELD_SINA_APPKEY_DESC"
+                                        default=""
+                                        />
+                <field
+			name="sinasecret"
+					type="text"
+					filter="safehtml"
+					cols="33"
+					rows="1"
+					label="MOD_WEIBOLOGIN_FIELD_SINA_SECRET"
+					description="MOD_WEIBOLOGIN_FIELD_SINA_SECRET_DESC"
+                                        default=""
+                                        />
                 <field name="tencentenabled" type="radio"
 					default="1"
 					description="MOD_WEIBOLOGIN_TENCENT"
@@ -118,6 +138,8 @@
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </param>
+        <param name="sinaappkey" type="text" size="10" default="" label="MOD_WEIBOLOGIN_FIELD_SINA_APPKEY" description="MOD_WEIBOLOGIN_FIELD_SINA_APPKEY_DESC" />
+        <param name="sinasecret" type="text" size="33" default="" label="MOD_WEIBOLOGIN_FIELD_SINA_SECRET" description="MOD_WEIBOLOGIN_FIELD_SINA_SECRET_DESC" />
         <param name="tencentenabled" type="radio" default="1" label="MOD_WEIBOLOGIN_TENCENT" description="MOD_WEIBOLOGIN_TENCENT">
             <option value="0">JNo</option>
             <option value="1">JYes</option>

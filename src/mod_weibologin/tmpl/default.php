@@ -40,8 +40,11 @@ else :
             <p><?php echo $params->get('pretext'); ?></p>
         </div>
     <?php endif; ?>
-    <?php if ($params->get('sinaenabled')) { ?>
-        <a href=index.php?option=com_weibo&task=sinaprelogin&rid=<?php echo $return; ?>>
+    <?php if ($params->get('sinaenabled')) { 
+        $sinaappkey = $params->get('sinaappkey');
+        $sinasecret = $params->get('sinasecret');
+        ?>
+        <a href=index.php?option=com_weibo&task=sinaprelogin&rid=<?php echo $return; ?>&sinaappkey=<?php echo $sinaappkey; ?>&sinasecret=<?php echo $sinasecret; ?>>
             <?php echo $sinalogo; ?>
         </a>
     <?php } ?>

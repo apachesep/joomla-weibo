@@ -60,6 +60,11 @@ class WeiboController extends JController {
     public
 
     function sinaprelogin($cachable = false, $urlparams = false) {
+        $sinaappkey = JRequest::getCmd('sinaappkey');
+        $sinasecret = JRequest::getCmd('sinasecret');
+        $_SESSION['sinaappkey'] = $sinaappkey;
+        $_SESSION['sinasecret'] = $sinasecret;
+        //$_SESSION['scope'] = 'get_user_info';
         return $this->authprelogin('sina');
     }
 
