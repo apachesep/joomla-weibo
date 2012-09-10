@@ -127,7 +127,7 @@ function getWeiboText($row, $option, &$weibocontent) {
 function sendSinaWeibo($row, $P) {
 
 // 如果没有得到本类微博的授权，不发表
-    if (!$P['sinalastkey']) {
+    if (!$P['sinalastkey'] || !$P['sinakey']) {
         return false;
     }
     $option = $P['typeoption']['sina'];
@@ -137,9 +137,10 @@ function sendSinaWeibo($row, $P) {
 
 // 准备微博文字和图片
     getWeiboText($row, $option, $weibocontent);
-
+    $sinaappkey = $P['sinakey']['oauth_token'];
+    $sinasecret = $P['sinakey']['oauth_token_secret'];
     try {
-        $c = new WeiboClient(WB_AKEY, WB_SKEY, $P['sinalastkey']['oauth_token'], $P['sinalastkey']['oauth_token_secret']);
+        $c = new SaeTClientV2($sinaappkey, $sinasecret, $P['sinalastkey']['oauth_token_secret']);
 
         // 如果有图片，上传图片，发表有图片的微博
         if ($weibocontent['imgurl']) {
@@ -332,7 +333,7 @@ class JRouterMe extends JRouterSite {
                 $route = str_replace('index.php/', '', $route);
             }
         }
-        
+
         // 以下即是JRouterSite的build函数的修改点，仅仅不需要增加baseurl
         //Add basepath to the uri
         //$uri->setPath(JURI::base(true).'/'.$route);
@@ -342,7 +343,6 @@ class JRouterMe extends JRouterSite {
     }
 
 }
-
 
 // 手工为本微博取得URL
 function buildUrl($url, $xhtml = true, $ssl = null) {
@@ -453,6 +453,10 @@ class plgContentWeibo extends JPlugin {
         $db->setQuery($sql);
         $result = $db->loadAssoc();
         $P['sinalastkey'] = $result;
+        $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='sinakey'";
+        $db->setQuery($sql);
+        $result = $db->loadAssoc();
+        $P['sinakey'] = $result;
 // 取得数据库中存储的腾讯微博授权码
         $sql = "SELECT  oauth_token, oauth_token_secret, name FROM #__weibo_auth WHERE type='tencent'";
         $db->setQuery($sql);
